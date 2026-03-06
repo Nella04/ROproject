@@ -1,0 +1,56 @@
+:root {
+  --primary-color: #09c294;
+  --secondary-color: #89698a;
+  --warning-color: #FFC107;
+  --danger-color: #DC3545;
+  --danger-color-disabled: #d56873;
+  --success-color: green;
+  --danger-color-disabled: #d56873;
+  --primary-color-darker: #499e89;
+  --font-color: #172b4D;
+  --font-color-gray: rgb(134, 125, 125);
+  --font-color-light: white;
+  --neutral-color: #F8F9FA;
+  --bs-primary: var(var(--primary-color));
+  --border-color: #e4d8d8;
+  --link-color: #5184cf;
+  --loader-gray-color: #F5F5F5;
+  --primary-color-disabled: #BBA3F1;
+  --bg-task-card: white;
+  --bg-task-column: #f6f8fc;
+  --bg-task-button-hover: #edf2fa;
+  --bg-button-task-hover: #dbe4eb;
+  --primary-color-disabled: #BBA3F1;
+  --primary-color-shadow: rgba(71, 9, 194, 0.3);
+}
+
+.text-primary-color {
+  color: var(--primary-color);
+}
+
+.text-secondary-color {
+  color: var(--secondary-color);
+}
+
+.bouton-btn {
+  border-radius: 5px;
+  padding: 5px 30px;
+  border: 1px solid;
+}
+
+
+.bouton-btn-primary {
+  background: var(--primary-color);
+  border: none;
+  color: var(--font-color-light);
+  &:not(:disabled):hover {
+    background-color: white;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    transition: all 0.5s ease-in-out;
+  }
+  &:disabled {
+    opacity: 0.7;
+    background-color: var(--primary-color-disabled);
+  }
+}

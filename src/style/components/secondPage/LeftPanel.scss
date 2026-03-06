@@ -1,0 +1,26 @@
+.left-panel {
+    padding: 20px;
+
+    h2 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    p {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    &__button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+    }
+}

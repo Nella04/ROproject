@@ -1,0 +1,28 @@
+.split-screen {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+
+    &__panel {
+        padding: 20px;
+
+        &--left {
+            flex: 4; // Représente 40%
+            background-color: #f5f5f5;
+        }
+
+        &--right {
+            flex: 6; // Représente 60%
+            background-color: #ffffff;
+        }
+    }
+
+    // Garde le responsive pour que ça repasse à 100% sur mobile
+    @media (max-width: 768px) {
+        flex-direction: column;
+        &__panel {
+            flex: none; 
+            min-height: 50vh;
+        }
+    }
+}
