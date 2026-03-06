@@ -23,3 +23,24 @@
         }
     }
 }
+.result-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+    
+    th, td {
+        border: 1px solid #333;
+        padding: 10px;
+        text-align: center;
+        min-width: 40px;
+    }
+
+    .supply-val, .supply-head { color: red; font-weight: bold; }
+    .demand-val, .demand-head { color: red; font-weight: bold; }
+    
+    .row-name { font-weight: bold; background: #f9f9f9; }
+}
+
+.matrix-input {
+    input { width: 50px; border: 1px solid #ddd; }
+}
