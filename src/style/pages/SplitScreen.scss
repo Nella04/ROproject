@@ -2,27 +2,39 @@
     display: flex;
     width: 100%;
     min-height: 100vh;
+    overflow: hidden; // Empêche les barres de défilement pendant l'animation
 
     &__panel {
         padding: 20px;
+        transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); // Animation fluide
 
         &--left {
-            flex: 4; // Représente 40%
+            flex: 10; // 100% au début
             background-color: #f5f5f5;
         }
 
         &--right {
-            flex: 6; // Représente 60%
+            flex: 0; // 0% au début
+            opacity: 0;
+            width: 0%;
+            visibility: hidden;
+            transform: translateX(50px); // Petit effet de décalage
             background-color: #ffffff;
+            border-left: 1px solid #ddd;
         }
     }
 
-    // Garde le responsive pour que ça repasse à 100% sur mobile
-    @media (max-width: 768px) {
-        flex-direction: column;
-        &__panel {
-            flex: none; 
-            min-height: 50vh;
+    // Quand l'état est "Calculé" (grâce à une classe parente ou une prop)
+    &.is-active {
+        .split-screen__panel--left {
+            flex: 4; // Devient 40%
+        }
+
+        .split-screen__panel--right {
+            flex: 6; // Devient 60%
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
         }
     }
 }

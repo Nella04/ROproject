@@ -1,6 +1,7 @@
 :root {
-  --primary-color: #09c294;
-  --secondary-color: #89698a;
+  --primary-color: #172b4D;
+  --secondary-color: #09c294;
+  --font-color-gray: rgb(226, 225, 225);
   --warning-color: #FFC107;
   --danger-color: #DC3545;
   --danger-color-disabled: #d56873;
@@ -8,7 +9,7 @@
   --danger-color-disabled: #d56873;
   --primary-color-darker: #499e89;
   --font-color: #172b4D;
-  --font-color-gray: rgb(134, 125, 125);
+  --font-color-gray2: rgb(134, 125, 125);
   --font-color-light: white;
   --neutral-color: #F8F9FA;
   --bs-primary: var(var(--primary-color));
@@ -22,6 +23,7 @@
   --bg-button-task-hover: #dbe4eb;
   --primary-color-disabled: #BBA3F1;
   --primary-color-shadow: rgba(71, 9, 194, 0.3);
+  --dark-color: #030303;
 }
 
 .text-primary-color {

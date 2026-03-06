@@ -2,12 +2,12 @@
     padding: 20px;
 
     h2 {
-        color: #333;
+        color: var(--primary-color);
         margin-bottom: 15px;
     }
 
     p {
-        color: #666;
+        color: var(--secondary-color);
         line-height: 1.6;
     }
 
