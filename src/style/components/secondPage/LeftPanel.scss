@@ -1,13 +1,160 @@
 .left-panel {
-    padding: 20px;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 
     h2 {
-        color:var(--primary-color);
-        margin-bottom: 15px;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        margin-bottom: 5px;
     }
 
-    p {
-        color:var(--secondary-color);
-        line-height: 1.6;
+    .scroll-area {
+        margin-top: 20px;
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: 10px;
+
+        &::-webkit-scrollbar { width: 5px; }
+        &::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+    }
+
+    .inputs-container {
+        display: flex; // Active le mode côte à côte
+        gap: 30px;    // Espace entre les deux colonnes
+        align-items: flex-start; // Aligne en haut
+        margin-top: 20px;
+        flex-wrap: wrap; // Permet de passer l'un sous l'autre sur petit écran (mobile)
+
+        .dynamic-section {
+            flex: 1; // Donne la même largeur aux deux colonnes
+            min-width: 300px; // Évite qu'elles soient trop écrasées
+        }
+    }
+
+    .vertical-separator {
+        width: 1px;
+        background-color: var(--border-color);
+        align-self: stretch; // Prend toute la hauteur disponible
+        margin: 10px 0;
+        
+        @media (max-width: 768px) {
+            display: none; // Cache la barre sur mobile
+        }
+    }
+
+    .dynamic-section {
+        margin-bottom: 25px;
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+
+            h3 { font-size: 1rem; color: var(--font-color-gray2); margin: 0; }
+
+            .num-input {
+                width: 60px;
+                padding: 5px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                text-align: center;
+            }
+        }
+    }
+
+    .item-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 8px;
+
+        input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            transition: border 0.3s;
+
+            &:focus {
+                outline: none;
+                border-color: var(--secondary-color);
+            }
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color-disabled);
+            cursor: pointer;
+            font-weight: bold;
+            &:hover { color: var(--danger-color); }
+        }
+    }
+
+    .add-small-btn {
+        background: none;
+        border: 1px dashed var(--secondary-color);
+        color: var(--secondary-color);
+        padding: 5px 15px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 5px;
+        &:hover { background: var(--bg-task-button-hover); }
+    }
+
+    .separator {
+        border: 0;
+        border-top: 1px solid var(--border-color);
+        margin: 20px 0;
+    }
+
+    .footer-actions {
+        margin-top: 30px;
+        text-align: center;
+    }
+}
+
+.table-title {
+    margin-top: 30px;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    border-left: 4px solid var(--secondary-color);
+    padding-left: 10px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    .transport-table {
+        width: 100%;
+        border-collapse: collapse;
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        th { background: var(--neutral-color); padding: 8px; font-size: 0.8rem; }
+        
+        input {
+            width: 100%;
+            border: none;
+            padding: 10px 5px;
+            text-align: center;
+            background: transparent;
+            &:focus { background: var(--bg-task-button-hover); outline: none; }
+        }
+
+        .txt-red { color: var(--danger-color); }
+        .font-bold { font-weight: bold; }
+        .bg-gray { background: var(--loader-gray-color); }
     }
 }
