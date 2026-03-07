@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-do
 
 import FirstPage from './pages/firstPage';
 import SecondPage from './pages/secondPage';
+import Pageandrana from './pages/thirsPage';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<FirstPage />} />
           <Route path="/second" element={<SecondPage />} />
+          <Route path="/a" element={<Pageandrana />} />
         </Routes>
       </div>
     </Router>

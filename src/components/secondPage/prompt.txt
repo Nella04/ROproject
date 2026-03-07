@@ -1,0 +1,35 @@
+voici le code de la recuperation de données
+comment faire pour que le nom de magasin(celui qu'on recupere) est ABCDE... 
+mais si l'utilisateur a changé on prend celui personnaliser
+et comme ca aussi celle du nom de depot(12345...) 
+et les noms sont unique pour chaque magasine et pour chaque depot et les noms
+et sont vue dans data( dans secondpage) 
+
+ecris moi une fonction javasript qui prend dans parametre un tableau d'entier a deux dimension
+ et de retourner le nombre plus petit dans le tableau et la position de cette nombre 
+
+ecris moi une composant en react js et scss qui recoit dans le paramettre 
+un tableeau(de nom matrice) en deux dimension
+et des positions exemple (2,2) et des couleurs(les positions et couleur est facultatif)
+ et qui affiche dans un tableau (td,th...)  le contenu du tableau deux dimensions 
+et colore les positions en les couleurs données 
+avec nombre position est possible plus que nombre couleur 
+alors on met en range les position qui a pas de couleur en orange
+
+et apres explique un peu et faire un peu d'exemple de données et sortie
+
+deuxieme composant:ecris moi une composant en reactjs et scss qui prend dans le parametre
+un tableau(de nom nomdepot),
+un tableu(de nom nommagasin),
+un tableau(de nom dispo),
+un tableau (de nom besoin),
+et qui affiche un tableau comme 
+le premier ligne et premier colonne contient rien du tout 
+mais les colonnes dans le premier ligne apres affiches les contenus du nomdepot
+donc le prmier colonne premier linge contient rien et 
+mais les ligns dans le premier colonne apres affiches les contenus du nommagasin
+et a linterieur
+un tableeau de ligne dimension(length) tableu nommagasin et 
+ de colonne dimension tableau nomdepot
+
+comme dans l'image 

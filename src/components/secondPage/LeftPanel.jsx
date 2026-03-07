@@ -10,10 +10,58 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
     const setDepots = (newDepots) => setData(prev => ({ ...prev, depots: newDepots }));
     const setMagasins = (newMagasins) => setData(prev => ({ ...prev, magasins: newMagasins }));
 
+    // --- Dans LeftPanel.jsx ---
+
+    useEffect(() => {
+        // 1. Synchronisation des dépôts avec noms par défaut (A, B, C...)
+        const updatedDepots = depots.map((d, i) => ({
+            ...d,
+            // Si le nom est vide, on génère le nom par défaut pour qu'il soit présent dans data
+            nomFinal: d.nom.trim() !== "" ? d.nom : String.fromCharCode(65 + (i % 26))
+        }));
+
+        // 2. Synchronisation des magasins avec noms par défaut (1, 2, 3...)
+        const updatedMagasins = magasins.map((m, i) => ({
+            ...m,
+            nomFinal: m.nom.trim() !== "" ? m.nom : (i + 1).toString()
+        }));
+
+        // 3. Matrice (identique à avant)
+        const newMatrice = depots.map((_, r) =>
+            magasins.map((_, c) => matrice[r]?.[c] || "")
+        );
+
+        // 4. Offres et Demandes (identique)
+        const newOffres = { ...offres };
+        depots.forEach(d => { if (newOffres[d.id] === undefined) newOffres[d.id] = ""; });
+
+        const newDemandes = { ...demandes };
+        magasins.forEach(m => { if (newDemandes[m.id] === undefined) newDemandes[m.id] = ""; });
+
+        // Comparaison pour éviter les boucles infinies
+        const hasChanged =
+            JSON.stringify(newMatrice) !== JSON.stringify(matrice) ||
+            JSON.stringify(updatedDepots) !== JSON.stringify(depots) || // Vérifie si les noms finaux ont changé
+            JSON.stringify(updatedMagasins) !== JSON.stringify(magasins);
+
+        if (hasChanged) {
+            setData(prev => ({
+                ...prev,
+                depots: updatedDepots,
+                magasins: updatedMagasins,
+                matrice: newMatrice,
+                offres: newOffres,
+                demandes: newDemandes
+            }));
+        }
+    }, [depots.length, magasins.length]);
+    // Note : Attention à ne pas mettre 'depots' ou 'magasins' entiers ici 
+    // si vous mettez à jour 'setData' à l'intérieur, sinon -> boucle infinie.
+
     // --- Synchronisation de la matrice et des champs Offre/Demande ---
     useEffect(() => {
         // 1. Synchronisation de la matrice (2D)
-        const newMatrice = depots.map((_, r) => 
+        const newMatrice = depots.map((_, r) =>
             magasins.map((_, c) => matrice[r]?.[c] || "")
         );
 
@@ -30,17 +78,17 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
         });
 
         // Mise à jour globale si changement détecté
-        const hasChanged = 
+        const hasChanged =
             JSON.stringify(newMatrice) !== JSON.stringify(matrice) ||
             Object.keys(newOffres).length !== Object.keys(offres).length ||
             Object.keys(newDemandes).length !== Object.keys(demandes).length;
 
         if (hasChanged) {
-            setData(prev => ({ 
-                ...prev, 
-                matrice: newMatrice, 
-                offres: newOffres, 
-                demandes: newDemandes 
+            setData(prev => ({
+                ...prev,
+                matrice: newMatrice,
+                offres: newOffres,
+                demandes: newDemandes
             }));
         }
     }, [depots, magasins, setData]); // Dépendances : change quand les listes changent
@@ -69,20 +117,20 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
     return (
         <div className="left-panel">
             <h2>Configuration</h2>
-            
+
             <div className="inputs-container">
-                <DynamicInputList 
-                    title="Dépôts" 
-                    type="alphabet" 
+                <DynamicInputList
+                    title="Dépôts"
+                    type="alphabet"
                     items={depots}
-                    setItems={setDepots} 
+                    setItems={setDepots}
                 />
                 <div className="vertical-separator"></div>
-                <DynamicInputList 
-                    title="Magasins" 
-                    type="nombre" 
+                <DynamicInputList
+                    title="Magasins"
+                    type="nombre"
                     items={magasins}
-                    setItems={setMagasins} 
+                    setItems={setMagasins}
                 />
             </div>
 
@@ -104,18 +152,18 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
                                 <td className="font-bold">{d.nom || String.fromCharCode(65 + r)}</td>
                                 {magasins.map((m, c) => (
                                     <td key={m.id}>
-                                        <input 
-                                            type="number" 
-                                            value={matrice[r]?.[c] || ""} 
+                                        <input
+                                            type="number"
+                                            value={matrice[r]?.[c] || ""}
                                             onChange={(e) => handleCellChange(r, c, e.target.value)}
                                         />
                                     </td>
                                 ))}
                                 <td>
-                                    <input 
+                                    <input
                                         className="txt-red font-bold"
-                                        type="number" 
-                                        value={offres[d.id] || ""} 
+                                        type="number"
+                                        value={offres[d.id] || ""}
                                         onChange={(e) => handleOffreChange(d.id, e.target.value)}
                                     />
                                 </td>
@@ -125,10 +173,10 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
                             <td className="txt-red font-bold">Besoin</td>
                             {magasins.map((m) => (
                                 <td key={m.id}>
-                                    <input 
+                                    <input
                                         className="txt-red font-bold"
-                                        type="number" 
-                                        value={demandes[m.id] || ""} 
+                                        type="number"
+                                        value={demandes[m.id] || ""}
                                         onChange={(e) => handleDemandeChange(m.id, e.target.value)}
                                     />
                                 </td>
@@ -140,12 +188,12 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
             </div>
 
             <div className="footer-actions">
-                <button 
-                    className="bouton-btn bouton-btn-primary" 
+                <button
+                    className="bouton-btn bouton-btn-primary"
                     onClick={() => {
-                        console.log("data",data);
+                        console.log("data", data);
                         onAction(data);
-                        }
+                    }
                     }
                 >
                     {isCalculed ? "Modifier" : "Calculer"}
