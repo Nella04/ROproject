@@ -1,0 +1,13 @@
+.mini-matrice {
+    border-collapse: collapse;
+    margin: auto;
+    
+    .mini-cell {
+        padding: 4px 8px;
+        border: 1px solid rgba(0, 0, 0, 0.1); // Bordure très légère
+        text-align: center;
+        min-width: 25px;
+        font-size: 0.9em;
+        border-radius: 2px;
+    }
+}

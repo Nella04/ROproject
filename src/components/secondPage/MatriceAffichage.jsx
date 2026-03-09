@@ -1,53 +1,77 @@
 import React from 'react';
 import '../../style/components/secondPage/MatriceAffichage.scss';
+import MiniMatrice from './MiniMatrice'; // Importation du nouveau composant
 
-const MatriceAffichage = ({ nomdepot, nommagasin, dispo, besoin, matriceCoûts }) => {
+const MatriceAffichage = ({ nomdepot, nommagasin, dispo, besoin, matriceCoûts, highlightsCouts = [] }) => {
+    
+    // Fonction utilitaire pour le rendu des dispo/besoin (simple ou flex)
+    const renderSimpleOrFlex = (data, direction = 'row') => {
+        if (!Array.isArray(data)) return data;
+        
+        const containerStyle = {
+            display: 'flex',
+            flexDirection: direction === 'column' ? 'column' : 'row',
+            gap: '10px',
+            justifyContent: 'center',
+            alignItems: 'center'
+        };
+
+        return (
+            <div style={containerStyle}>
+                {data.map((item, i) => <span key={i}>{item}</span>)}
+            </div>
+        );
+    };
+
     return (
         <div className="matrice-container">
             <table className="custom-matrice">
                 <thead>
                     <tr>
-                        {/* Case vide en haut à gauche */}
                         <th className="empty-cell"></th>
-                        {/* En-têtes des colonnes : Noms des dépôts */}
                         {nomdepot.map((depot, index) => (
-                            <th key={`h-depot-${index}`} className="header-depot">
-                                {depot}
-                            </th>
+                            <th key={`h-depot-${index}`} className="header-depot">{depot}</th>
                         ))}
-                        {/* Colonne finale pour la disponibilité */}
                         <th className="header-dispo">Disponibilité</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {/* Lignes pour chaque magasin */}
                     {nommagasin.map((magasin, rowIndex) => (
                         <tr key={`row-magasin-${rowIndex}`}>
-                            {/* Première colonne de la ligne : Nom du magasin */}
                             <td className="header-magasin">{magasin}</td>
+                            
+                            {/* ICI : Utilisation de MiniMatrice pour les coûts */}
+                            {nomdepot.map((_, colIndex) => {
+                                const cellData = matriceCoûts?.[rowIndex]?.[colIndex];
+                                
+                                // On filtre les highlights qui concernent CETTE cellule précise du grand tableau
+                                const localHighlights = highlightsCouts
+                                    .filter(h => h.mainPos[0] === rowIndex && h.mainPos[1] === colIndex)
+                                    .map(h => ({ pos: h.subPos, color: h.color }));
 
-                            {/* Cellules intérieures (Matrice de données/coûts) */}
-                            {nomdepot.map((_, colIndex) => (
-                                <td key={`cell-${rowIndex}-${colIndex}`} className="data-cell">
-                                    {/* On affiche la valeur de la matrice si elle existe */}
-                                    {matriceCoûts && matriceCoûts[rowIndex] ? matriceCoûts[rowIndex][colIndex] : '-'}
-                                </td>
-                            ))}
+                                return (
+                                    <td key={`cell-${rowIndex}-${colIndex}`} className="data-cell">
+                                        <MiniMatrice 
+                                            matrice={cellData} 
+                                            highlights={localHighlights} 
+                                        />
+                                    </td>
+                                );
+                            })}
 
-                            {/* Colonne de droite : Valeur de disponibilité (dispo) */}
-                            <td className="value-dispo">{dispo[rowIndex]}</td>
+                            <td className="value-dispo">
+                                {renderSimpleOrFlex(dispo[rowIndex], 'row')}
+                            </td>
                         </tr>
                     ))}
 
-                    {/* Dernière ligne : Besoins */}
                     <tr className="footer-besoin">
                         <td className="label-besoin">Besoin</td>
                         {besoin.map((b, index) => (
                             <td key={`f-besoin-${index}`} className="value-besoin">
-                                {b}
+                                {renderSimpleOrFlex(b, 'column')}
                             </td>
                         ))}
-                        {/* Case vide en bas à droite ou Σ */}
                         <td className="total-cell">Σ</td>
                     </tr>
                 </tbody>

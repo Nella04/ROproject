@@ -5,14 +5,17 @@ et comme ca aussi celle du nom de depot(12345...)
 et les noms sont unique pour chaque magasine et pour chaque depot et les noms
 et sont vue dans data( dans secondpage) 
 
-ecris moi une fonction javasript qui prend dans parametre un tableau d'entier a deux dimension
- et de retourner le nombre plus petit dans le tableau et la position de cette nombre 
+ecris moi une fonction javasript reactjs (fonction dans un fichier .js)
+ qui prend dans parametre un tableau d'entier a deux dimension
+ et des possitions(qui sont facultatif) et qui ignore ces positions
+ et de retourner le nombre plus petit dans le tableau et
+  la position de cette nombre genre ligne et colonne
 
 ecris moi une composant en react js et scss qui recoit dans le paramettre 
 un tableeau(de nom matrice) en deux dimension
 et des positions exemple (2,2) et des couleurs(les positions et couleur est facultatif)
  et qui affiche dans un tableau (td,th...)  le contenu du tableau deux dimensions 
-et colore les positions en les couleurs données 
+et colore les positions(le fond du cellule) en les couleurs données 
 avec nombre position est possible plus que nombre couleur 
 alors on met en range les position qui a pas de couleur en orange
 
