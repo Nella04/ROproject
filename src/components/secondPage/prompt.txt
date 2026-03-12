@@ -36,3 +36,291 @@ un tableeau de ligne dimension(length) tableu nommagasin et
  de colonne dimension tableau nomdepot
 
 comme dans l'image 
+
+voici une code en react js l'objectif et de resoudre une probleme de transport en utilisant mini tab mais on ca faire ca etape par etape 
+
+
+import React from "react";
+import MatriceAffichage from "../components/secondPage/MatriceAffichage";
+
+export default function Pageandrana() {
+    const exempleDonnees = {
+        depots: ["1", "2", "3", "4", "5"],
+        magasins: ["A", "B", "C", "D"],
+        disponibilites: [18, [10,2], 14, 5], // Valeurs à droite
+        besoins: [8, 11, 28, 6, [23,6],        // Valeurs en bas
+        // Matrice 2D pour les coûts centraux
+        couts: [
+            [24, 22, 61, 49, 4],
+            [23, 39, 78, 28, 5],
+            [67, 56, 92, 24, 5],
+            [71, 43, 91, 67, 5],
+        ],
+        bloque:[[]],
+        colorMatrice:[[]],
+minitabmat={//pour le position de amoin et ca valeur
+            // {
+            //     position:1,
+            //     nombre:2,
+            // }
+        },    };
+
+
+    // Utilisation :
+    return (
+        <MatriceAffichage
+            nomdepot={exempleDonnees.depots}
+            nommagasin={exempleDonnees.magasins}
+            dispo={exempleDonnees.disponibilites}
+            besoin={exempleDonnees.besoins}
+            matriceCoûts={exempleDonnees.couts}
+            highlightsCouts={mesHighlights}
+        />
+    )
+};
+
+
+import React from 'react';
+import '../../style/components/secondPage/MatriceAffichage.scss';
+import MiniMatrice from './MiniMatrice'; // Importation du nouveau composant
+
+const MatriceAffichage = ({ nomdepot, nommagasin, dispo, besoin, matriceCoûts, highlightsCouts = [] }) => {
+    
+    // Fonction utilitaire pour le rendu des dispo/besoin (simple ou flex)
+    const renderSimpleOrFlex = (data, direction = 'row') => {
+        if (!Array.isArray(data)) return data;
+        
+        const containerStyle = {
+            display: 'flex',
+            flexDirection: direction === 'column' ? 'column' : 'row',
+            gap: '10px',
+            justifyContent: 'center',
+            alignItems: 'center'
+        };
+
+        return (
+            <div style={containerStyle}>
+                {data.map((item, i) => <span key={i}>{item}</span>)}
+            </div>
+        );
+    };
+
+    return (
+        <div className="matrice-container">
+            <table className="custom-matrice">
+                <thead>
+                    <tr>
+                        <th className="empty-cell"></th>
+                        {nomdepot.map((depot, index) => (
+                            <th key={`h-depot-${index}`} className="header-depot">{depot}</th>
+                        ))}
+                        <th className="header-dispo">Disponibilité</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {nommagasin.map((magasin, rowIndex) => (
+                        <tr key={`row-magasin-${rowIndex}`}>
+                            <td className="header-magasin">{magasin}</td>
+                            
+                            {/* ICI : Utilisation de MiniMatrice pour les coûts */}
+                            {nomdepot.map((_, colIndex) => {
+                                const cellData = matriceCoûts?.[rowIndex]?.[colIndex];
+                                
+                                // On filtre les highlights qui concernent CETTE cellule précise du grand tableau
+                                const localHighlights = highlightsCouts
+                                    .filter(h => h.mainPos[0] === rowIndex && h.mainPos[1] === colIndex)
+                                    .map(h => ({ pos: h.subPos, color: h.color }));
+
+                                return (
+                                    <td key={`cell-${rowIndex}-${colIndex}`} className="data-cell">
+                                        <MiniMatrice 
+                                            matrice={cellData} 
+                                            highlights={localHighlights} 
+                                        />
+                                    </td>
+                                );
+                            })}
+
+                            <td className="value-dispo">
+                                {renderSimpleOrFlex(dispo[rowIndex], 'row')}
+                            </td>
+                        </tr>
+                    ))}
+
+                    <tr className="footer-besoin">
+                        <td className="label-besoin">Besoin</td>
+                        {besoin.map((b, index) => (
+                            <td key={`f-besoin-${index}`} className="value-besoin">
+                                {renderSimpleOrFlex(b, 'column')}
+                            </td>
+                        ))}
+                        <td className="total-cell">Σ</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+export default MatriceAffichage;
+
+
+import React from 'react';
+import '../../style/components/thirsPage/miniMatrice.scss';
+
+const MiniMatrice = ({ matrice, highlights = [] }) => {
+    // Gestion des valeurs simples (non-tableau)
+    if (!Array.isArray(matrice)) {
+        // Vérifier s'il y a un highlight pour cette cellule (position [0,0] implicite)
+        const hasHighlight = highlights.some(h => h.pos[0] === 0 && h.pos[1] === 0);
+        const bgColor = hasHighlight 
+            ? (highlights.find(h => h.pos[0] === 0 && h.pos[1] === 0)?.color || 'orange') 
+            : 'transparent';
+        
+        return (
+            <span style={{ backgroundColor: bgColor, display: 'inline-block', padding: '2px' }}>
+                {matrice}
+            </span>
+        );
+    }
+
+    // Si c'est un tableau 1D, on le transforme en 2D pour l'uniformité
+    const rows = Array.isArray(matrice[0]) ? matrice : [matrice];
+
+    return (
+        <table className="mini-matrice">
+            <tbody>
+                {rows.map((row, rowIndex) => (
+                    <tr key={`r-${rowIndex}`}>
+                        {row.map((cell, colIndex) => {
+                            const highLight = highlights.find(
+                                (h) => h.pos[0] === rowIndex && h.pos[1] === colIndex
+                            );
+
+                            const bgColor = highLight 
+                                ? (highLight.color || 'orange') 
+                                : 'transparent';
+
+                            return (
+                                <td 
+                                    key={`c-${colIndex}`} 
+                                    style={{ backgroundColor: bgColor }}
+                                    className="mini-cell"
+                                >
+                                    {cell}
+                                </td>
+                            );
+                        })}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
+};
+
+export default MiniMatrice;
+
+
+
+const finding = {
+
+    findMinWithPosition: (matrix, ignoredPositions = []) => {
+        let min = Infinity;
+        let position = { row: -1, col: -1 };
+
+        for (let i = 0; i < matrix.length; i++) {
+            for (let j = 0; j < matrix[i].length; j++) {
+
+                // vérifier si la position doit être ignorée
+                const isIgnored = ignoredPositions.some(
+                    pos => pos.row === i && pos.col === j
+                );
+
+                if (!isIgnored && matrix[i][j] < min) {
+                    min = matrix[i][j];
+                    position = { row: i, col: j };
+                }
+            }
+        }
+
+        return {
+            min,
+            position
+        };
+    }
+
+}
+export default finding;
+
+
+alors ecrit moi une code en reactjs dans finding qui recupere les donnes dans ------MatriceAffichage
+            nomdepot={exempleDonnees.depots}
+            nommagasin={exempleDonnees.magasins}
+            dispo={exempleDonnees.disponibilites}
+            besoin={exempleDonnees.besoins}
+            matriceCoûts={exempleDonnees.couts}
+            highlightsCouts={mesHighlights}---------
+et qui cherche le nombre le plus petit dans minimatrice et dont les positions qui ne sont pas bloqué dans ce variable //bloque:[[]]// 
+puis recupere la position de ce nombre le plus petit (avec le fonction findMinWithPosition) et recupere le plus petit entre disponibilites et besoins qui correspond a cette position le plus petit on va nome ca amoin(exemple si la position est (1;2) donc 2eme ligne et 3 eme colonne alors on compare le dernier position a la  2éme position pour un tableaux a deux dimension dans besoin si seullement a une dimension alors juste la deuxime position on le compare avec le dernier position dans le 3 eme position dans le tableau disponnibilites juste la troisieme position si c'est une seul dimension dans le tableau disponibilité)
+puis on fais la difference entre le disponibilité correspondante et amoin et mettre ca apres le dernier position dans le disponibilité correspondante (exemple si c'est [12,8] et amoin est 2 alors le disponibilité devient [12,8,6] pour une dimension si c'est 9 et amoin est 5 alors ca devient [9,4]) 
+et apres  on fais la difference entre le besoin correspondante et amoin et mettre ca apres le dernier position dans le besoin correspondante
+
+puis si l'operation est comme amoin - besoin = 0 alors mettre tous les colonnes qui correspond a la position de cette a amoin en bloqué(mettre dans bloque:[[]] les position de tous les colonnes dans le meme positon  exemple amoin setrouve dans 3 eme position alors mettre tous les psition des colonne 3 dans minitab dans le variable bloque ) 
+si l'operation est comme amoin - disponnibilites = 0 alors mettre tous les lignes qui correspond a la position de cette a amoin en bloqué(mettre dans bloque:[[]] les position de tous les lignes dans le meme positon  exemple amoin setrouve dans 3 eme position alors mettre tous les psition des lignes 3 dans minitab dans le variable bloque ) 
+
+on doit aussi reperer amoin et sa position et mettre dans ----
+        minitabmat:{
+            {
+                position:,
+                nombre:,
+            }------
+et ca doit retourner tous ces variables
+-------------------
+{
+        depots: ["1", "2", "3", "4", "5"],
+        magasins: ["A", "B", "C", "D"],
+        disponibilites: [18, 5, 14, 5], // Valeurs à droite
+        besoins: [8, 11, 28, 6, 14],        // Valeurs en bas
+        // Matrice 2D pour les coûts centraux
+        couts: [
+            [24, 22, 61, 49, 4],
+            [23, 39, 78, 28, 5],
+            [67, 56, 92, 24, 5],
+            [71, 43, 91, 67, 5],
+        ],
+        minitabmat:{
+            {
+                position:,
+                nombre:,
+            }
+            {
+                position nombre
+            }
+        },
+        bloque:[[]],
+        
+    };
+-------------
+
+et refaire cette fonction jusqua ce que tous les positions sont bloqué donc la fonction retourne ces variables a plusieurs fois 
+
+
+
+
+mettre une fois en bloqué en bloqué pour toujours
+
+comment faire pour mettre en couleur les besoins et disponnibilités concerné(celle qui change)
+ en couleur rouge (couleur de police) pendant la deuxieme etapes puis remettre comme les couleur des autres apres le deuxieme etape
+
+mettre tous les lignes et colonne en blqué si a la fois amoin-besoin=0 et et amoin-disponnibilité est egale a 0
+
+depots: ["1", "2", "3", "4", "5"],
+        magasins: ["A", "B", "C", "D"],
+        disponibilites: [18, 10, 14, 5],
+        besoins: [8, 11, 28, 6, 23],
+        couts: [
+            [24, 22, 61, 49, 4],
+            [23, 39, 78, 28, 5],
+            [67, 56, 92, 24, 5],
+            [71, 43, 91, 67, 5],
+        ]

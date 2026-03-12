@@ -81,22 +81,43 @@ const finding = {
                 besoins[col] = [besoins[col], newBesoin];
             }
 
-            // bloquer colonne
-            if (newBesoin === 0) {
-                for (let i = 0; i < rows; i++) {
-                    if (!bloque.some(p => p.row === i && p.col === col)) {
-                        bloque.push({ row: i, col });
-                    }
-                }
-            }
+            // cas spécial : disponibilité ET besoin deviennent 0
+            if (newDispo === 0 && newBesoin === 0) {
 
-            // bloquer ligne
-            if (newDispo === 0) {
+                // bloquer toute la ligne
                 for (let j = 0; j < cols; j++) {
                     if (!bloque.some(p => p.row === row && p.col === j)) {
                         bloque.push({ row, col: j });
                     }
                 }
+
+                // bloquer toute la colonne
+                for (let i = 0; i < rows; i++) {
+                    if (!bloque.some(p => p.row === i && p.col === col)) {
+                        bloque.push({ row: i, col });
+                    }
+                }
+
+            }
+            else if (newBesoin === 0) {
+
+                // bloquer seulement la colonne
+                for (let i = 0; i < rows; i++) {
+                    if (!bloque.some(p => p.row === i && p.col === col)) {
+                        bloque.push({ row: i, col });
+                    }
+                }
+
+            }
+            else if (newDispo === 0) {
+
+                // bloquer seulement la ligne
+                for (let j = 0; j < cols; j++) {
+                    if (!bloque.some(p => p.row === row && p.col === j)) {
+                        bloque.push({ row, col: j });
+                    }
+                }
+
             }
 
             // ⭐ SAUVEGARDER L'ÉTAT DE CETTE ÉTAPE
