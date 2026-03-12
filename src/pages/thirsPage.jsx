@@ -1,5 +1,6 @@
 import React from "react";
 import MatriceAffichage from "../components/secondPage/MatriceAffichage";
+import finding from "../service/finding";
 
 export default function Pageandrana() {
     const exempleDonnees = {
@@ -14,9 +15,16 @@ export default function Pageandrana() {
             [67, 56, 92, 24, 5],
             [71, 43, 91, 67, 5],
         ],
+        minitabmat :[], //{//pour le position de amoin et ca valeur
+            // {
+            //     position:1,
+            //     nombre:2,
+            // }
+        //},
         bloque:[[]],
-        colorMatrice,
+        
     };
+    //colorMatrice:[[]]
 
     const mesHighlights = [
         // {
@@ -26,6 +34,11 @@ export default function Pageandrana() {
         // },
     ]
 
+    const result = finding.solveTransport(exempleDonnees);
+    //console.log(result);
+
+    const result2 = finding.solveTransport2(exempleDonnees);
+    console.log(result2);
     // Utilisation :
     return (
         <MatriceAffichage
