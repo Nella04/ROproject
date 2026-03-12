@@ -22,7 +22,6 @@ const finding = {
         return { min, position };
     },
 
-
     solveTransport: (data) => {
 
         let depots = [...data.depots];
@@ -37,11 +36,12 @@ const finding = {
         const rows = couts.length;
         const cols = couts[0].length;
 
+        const etapes = [];
+
         const isAllBlocked = () => bloque.length >= rows * cols;
 
         while (!isAllBlocked()) {
 
-            // 1️⃣ chercher le minimum
             const { min, position } = finding.findMinWithPosition(couts, bloque);
 
             if (position.row === -1) break;
@@ -49,7 +49,6 @@ const finding = {
             const row = position.row;
             const col = position.col;
 
-            // 2️⃣ récupérer disponibilite et besoin
             let dispoValue = Array.isArray(disponibilites[row])
                 ? disponibilites[row][disponibilites[row].length - 1]
                 : disponibilites[row];
@@ -58,74 +57,76 @@ const finding = {
                 ? besoins[col][besoins[col].length - 1]
                 : besoins[col];
 
-            // 3️⃣ calcul aMoins
             const aMoins = Math.min(dispoValue, besoinValue);
 
-            // 4️⃣ sauvegarder dans minitab
             minitabmat.push({
                 position: { row, col },
                 nombre: aMoins
             });
 
-            // 5️⃣ mise à jour disponibilité
             const newDispo = dispoValue - aMoins;
+            const newBesoin = besoinValue - aMoins;
 
+            // update dispo
             if (Array.isArray(disponibilites[row])) {
                 disponibilites[row].push(newDispo);
             } else {
                 disponibilites[row] = [disponibilites[row], newDispo];
             }
 
-            // 6️⃣ mise à jour besoin
-            const newBesoin = besoinValue - aMoins;
-
+            // update besoin
             if (Array.isArray(besoins[col])) {
                 besoins[col].push(newBesoin);
             } else {
                 besoins[col] = [besoins[col], newBesoin];
             }
 
-            // 7️⃣ bloquer colonne si besoin = 0
+            // bloquer colonne
             if (newBesoin === 0) {
                 for (let i = 0; i < rows; i++) {
-                    const exists = bloque.some(p => p.row === i && p.col === col);
-                    if (!exists) bloque.push({ row: i, col });
+                    if (!bloque.some(p => p.row === i && p.col === col)) {
+                        bloque.push({ row: i, col });
+                    }
                 }
             }
 
-            // 8️⃣ bloquer ligne si disponibilité = 0
+            // bloquer ligne
             if (newDispo === 0) {
                 for (let j = 0; j < cols; j++) {
-                    const exists = bloque.some(p => p.row === row && p.col === j);
-                    if (!exists) bloque.push({ row, col: j });
+                    if (!bloque.some(p => p.row === row && p.col === j)) {
+                        bloque.push({ row, col: j });
+                    }
                 }
             }
+
+            // ⭐ SAUVEGARDER L'ÉTAT DE CETTE ÉTAPE
+            etapes.push({
+                depots: [...depots],
+                magasins: [...magasins],
+                disponibilites: JSON.parse(JSON.stringify(disponibilites)),
+                besoins: JSON.parse(JSON.stringify(besoins)),
+                couts: JSON.parse(JSON.stringify(couts)),
+                minitabmat: JSON.parse(JSON.stringify(minitabmat)),
+                bloque: JSON.parse(JSON.stringify(bloque))
+            });
 
         }
 
-        return {
-            depots,
-            magasins,
-            disponibilites,
-            besoins,
-            couts,
-            minitabmat,
-            bloque
-        };
+        return etapes;
     },
 
     solveTransport2: (donnees) => {
-        let { 
-            couts, 
-            disponibilites, 
-            besoins, 
-            bloque = [], 
-            minitabmat = [] 
+        let {
+            couts,
+            disponibilites,
+            besoins,
+            bloque = [],
+            minitabmat = []
         } = donnees;
 
         // On continue tant qu'on trouve un coût minimal (tant que tout n'est pas bloqué)
         const result = finding.findMinWithPosition(couts, bloque);
-        
+
         if (result.min === Infinity) {
             return donnees; // Tout est bloqué, on s'arrête
         }
@@ -134,7 +135,7 @@ const finding = {
 
         // Récupérer la valeur actuelle de dispo et besoin (dernière valeur si c'est un tableau)
         const getVal = (val) => Array.isArray(val) ? val[val.length - 1] : val;
-        
+
         const currentDispo = getVal(disponibilites[row]);
         const currentBesoin = getVal(besoins[col]);
 
@@ -144,15 +145,15 @@ const finding = {
         // Mise à jour des disponibilités (on ajoute la nouvelle valeur après soustraction)
         const newDisponibilites = [...disponibilites];
         const diffDispo = currentDispo - amoin;
-        newDisponibilites[row] = Array.isArray(newDisponibilites[row]) 
-            ? [...newDisponibilites[row], diffDispo] 
+        newDisponibilites[row] = Array.isArray(newDisponibilites[row])
+            ? [...newDisponibilites[row], diffDispo]
             : [newDisponibilites[row], diffDispo];
 
         // Mise à jour des besoins
         const newBesoins = [...besoins];
         const diffBesoin = currentBesoin - amoin;
-        newBesoins[col] = Array.isArray(newBesoins[col]) 
-            ? [...newBesoins[col], diffBesoin] 
+        newBesoins[col] = Array.isArray(newBesoins[col])
+            ? [...newBesoins[col], diffBesoin]
             : [newBesoins[col], diffBesoin];
 
         // Enregistrer amoin et sa position
@@ -187,6 +188,45 @@ const finding = {
 
         // Récurence : On relance jusqu'à ce que tout soit bloqué
         return finding.solveTransport(nouvellesDonnees);
+    },
+    // Dans finding.js, ajoutez cette méthode :
+    getNextStep: (donnees) => {
+        let couts = donnees.matriceCoûts || donnees.couts;
+        let disponibilites = [...(donnees.disponibilites || donnees.dispo)];
+        let besoins = [...(donnees.besoins || donnees.besoin)];
+        let minitabmat = Array.isArray(donnees.minitabmat) ? [...donnees.minitabmat] : [];
+        let bloque = Array.isArray(donnees.bloque) ? [...donnees.bloque] : [];
+
+        const result = finding.findMinWithPosition(couts, bloque);
+        if (result.min === Infinity) return null; // Plus d'étapes possibles
+
+        const { row, col } = result.position;
+        const getVal = (val) => Array.isArray(val) ? val[val.length - 1] : val;
+        const currentDispo = getVal(disponibilites[row]);
+        const currentBesoin = getVal(besoins[col]);
+        const amoin = Math.min(currentDispo, currentBesoin);
+
+        // Mise à jour des valeurs
+        const diffDispo = currentDispo - amoin;
+        disponibilites[row] = Array.isArray(disponibilites[row]) ? [...disponibilites[row], diffDispo] : [disponibilites[row], diffDispo];
+
+        const diffBesoin = currentBesoin - amoin;
+        besoins[col] = Array.isArray(besoins[col]) ? [...besoins[col], diffBesoin] : [besoins[col], diffBesoin];
+
+        minitabmat.push({ position: [row, col], nombre: amoin });
+
+        // Blocage
+        if (diffBesoin === 0) {
+            for (let i = 0; i < couts.length; i++) {
+                if (!bloque.some(p => p.row === i && p.col === col)) bloque.push({ row: i, col: col });
+            }
+        } else if (diffDispo === 0) {
+            for (let j = 0; j < couts[0].length; j++) {
+                if (!bloque.some(p => p.row === row && p.col === j)) bloque.push({ row: row, col: j });
+            }
+        }
+
+        return { ...donnees, disponibilites, besoins, minitabmat, bloque };
     }
 
 };
