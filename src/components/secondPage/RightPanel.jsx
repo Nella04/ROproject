@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../style/components/secondPage/RightPanel.scss';
 import transformerDonnees from '../../service/util';
 import Pageandrana from '../../pages/thirsPage';
+import { useMemo } from 'react';
 
 const RightPanel = ({ data }) => {
-    const datanew = transformerDonnees(data);
-    console.log("hszhfri",datanew);
+    const datanew = useMemo(() => {
+        return transformerDonnees(data);
+    }, [data]);
+    const [solutionBase, setSolutionBase] = useState();
+    useEffect(() => {
+        console.log("dddd", solutionBase);
+    }, [solutionBase]);
     return (
-        <Pageandrana exempleDonnees={datanew}/>
+        <Pageandrana exempleDonnees={datanew} setSolutionBase={setSolutionBase} />
     );
 };
 
