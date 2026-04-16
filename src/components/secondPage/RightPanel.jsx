@@ -5,6 +5,7 @@ import Pageandrana from '../../pages/thirsPage';
 
 const RightPanel = ({ data }) => {
     const datanew = transformerDonnees(data);
+    console.log("hszhfri",datanew);
     return (
         <Pageandrana exempleDonnees={datanew}/>
     );
