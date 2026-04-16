@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import MatriceAffichage from "../components/secondPage/MatriceAffichage";
 //import finding from "../utils/finding";
 import finding from "../service/finding";
+import { useMemo } from "react";
 
-export default function Pageandrana({exempleDonnees}) {
+export default function Pageandrana({ exempleDonnees, setSolutionBase }) {
 
     /*const exempleDonnees = {
         depots: ["1", "2", "3", "4", "5","6"],
@@ -18,49 +19,70 @@ export default function Pageandrana({exempleDonnees}) {
         ]
     };*/
     if (!exempleDonnees || !exempleDonnees.couts || exempleDonnees.couts.length === 0) {
-    return <div>Aucune donnée à afficher</div>;
-}
+        return <div>Aucune donnée à afficher</div>;
+    }
 
-    const etapes = finding.solveTransport(exempleDonnees);
-    console.log("resulata de la solution de base",etapes);
+    const [existespilone, setEsistEpsilone] = useState(false);
+
+    const etapes = useMemo(() => {
+        return finding.solveTransport(exempleDonnees);
+    }, [exempleDonnees]);
+
+    useEffect(() => {
+        if (etapes.length > 0) {
+            setSolutionBase(etapes[etapes.length - 1]);
+        }
+
+        const m = exempleDonnees.disponibilites.length;
+        const n = exempleDonnees.besoins.length;
+
+        if (etapes.length !== (m + n - 1)) {
+            setEsistEpsilone(true);
+        } else {
+            setEsistEpsilone(false);
+        }
+
+    }, [etapes]);
+    // console.log("resulata de la solution de base", etapes);
+    // console.log("epsilone",existespilone);
 
     const [stepIndex, setStepIndex] = useState(0);
 
     const totalSteps = etapes.length * 3;
 
     useEffect(() => {
-    const handleKey = (e) => {
-        if (e.key === "ArrowRight" || e.key === "Enter") {
-            // Avancer d'une phase
-            setStepIndex(prev =>
-                prev < totalSteps - 1 ? prev + 1 : prev
-            );
-        } 
-        else if (e.key === "ArrowLeft") {
-            // Revenir d'une phase
-            setStepIndex(prev => 
-                prev > 0 ? prev - 1 : prev
-            );
-        }
-        else if (e.key === "ArrowDown") {
-            // Optionnel : Avancer d'une itération complète (3 phases d'un coup)
-            setStepIndex(prev => {
-                const nextIteration = prev + 3;
-                return nextIteration < totalSteps ? nextIteration : prev;
-            });
-        }
-        else if (e.key === "ArrowUp") {
-            // Optionnel : Reculer d'une itération complète (3 phases d'un coup)
-            setStepIndex(prev => {
-                const prevIteration = prev - 3;
-                return prevIteration >= 0 ? prevIteration : 0;
-            });
-        }
-    };
+        const handleKey = (e) => {
+            if (e.key === "ArrowRight" || e.key === "Enter") {
+                // Avancer d'une phase
+                setStepIndex(prev =>
+                    prev < totalSteps - 1 ? prev + 1 : prev
+                );
+            }
+            else if (e.key === "ArrowLeft") {
+                // Revenir d'une phase
+                setStepIndex(prev =>
+                    prev > 0 ? prev - 1 : prev
+                );
+            }
+            else if (e.key === "ArrowDown") {
+                // Optionnel : Avancer d'une itération complète (3 phases d'un coup)
+                setStepIndex(prev => {
+                    const nextIteration = prev + 3;
+                    return nextIteration < totalSteps ? nextIteration : prev;
+                });
+            }
+            else if (e.key === "ArrowUp") {
+                // Optionnel : Reculer d'une itération complète (3 phases d'un coup)
+                setStepIndex(prev => {
+                    const prevIteration = prev - 3;
+                    return prevIteration >= 0 ? prevIteration : 0;
+                });
+            }
+        };
 
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-}, [totalSteps]);
+        window.addEventListener("keydown", handleKey);
+        return () => window.removeEventListener("keydown", handleKey);
+    }, [totalSteps]);
 
     const currentIteration = Math.floor(stepIndex / 3);
     const phase = stepIndex % 3;
@@ -100,40 +122,53 @@ export default function Pageandrana({exempleDonnees}) {
 
     let blockedCells = [];
 
-// récupérer toutes les cellules bloquées jusqu'à l'étape actuelle
-for (let i = 0; i <= currentIteration; i++) {
+    // récupérer toutes les cellules bloquées jusqu'à l'étape actuelle
+    for (let i = 0; i <= currentIteration; i++) {
 
-    if (!etapes[i]) continue;
+        if (!etapes[i]) continue;
 
-    etapes[i].bloque.forEach(pos => {
+        etapes[i].bloque.forEach(pos => {
 
-        const alreadyExists = blockedCells.some(
-            c => c.mainPos[0] === pos.row && c.mainPos[1] === pos.col
-        );
+            const alreadyExists = blockedCells.some(
+                c => c.mainPos[0] === pos.row && c.mainPos[1] === pos.col
+            );
 
-        if (!alreadyExists) {
-            blockedCells.push({
-                mainPos: [pos.row, pos.col],
-                subPos: [0, 0],
-                color: "black"
-            });
-        }
+            if (!alreadyExists) {
+                blockedCells.push({
+                    mainPos: [pos.row, pos.col],
+                    subPos: [0, 0],
+                    color: "black"
+                });
+            }
 
-    });
+        });
 
-}
+    }
     return (
+        <>
+            <MatriceAffichage
+                nomdepot={currentData.depots}
+                nommagasin={currentData.magasins}
+                dispo={currentData.disponibilites}
+                besoin={currentData.besoins}
+                matriceCoûts={currentData.couts}
+                highlightsCouts={[...mesHighlights, ...blockedCells]}
+                highlightDispo={dispoHighlight}
+                highlightBesoin={besoinHighlight}
+            />
 
-        <MatriceAffichage
-            nomdepot={currentData.depots}
-            nommagasin={currentData.magasins}
-            dispo={currentData.disponibilites}
-            besoin={currentData.besoins}
-            matriceCoûts={currentData.couts}
-            highlightsCouts={[...mesHighlights, ...blockedCells]}
-            highlightDispo={dispoHighlight}
-            highlightBesoin={besoinHighlight}
-        />
+            <h3 className="table-title">solution de base</h3>
 
+            <MatriceAffichage
+                nomdepot={currentData.depots}
+                nommagasin={currentData.magasins}
+                dispo={currentData.disponibilites}
+                besoin={currentData.besoins}
+                matriceCoûts={currentData.couts}
+                highlightsCouts={[...mesHighlights, ...blockedCells]}
+                highlightDispo={dispoHighlight}
+                highlightBesoin={besoinHighlight}
+            />
+        </>
     );
 }
