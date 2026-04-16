@@ -7,7 +7,7 @@ import '../style/pages/secondPage.scss';
 
 export default function secondPage() {
     const [isCalculed, setIsCalculed] = useState(false);
-    
+
     // États déplacés ici pour persistance
     const [configData, setConfigData] = useState({
         depots: [{ id: Date.now(), nom: "" }],
@@ -18,7 +18,6 @@ export default function secondPage() {
     });
 
     const handleAction = (newData) => {
-        // On fusionne les données provenant du LeftPanel
         setConfigData(prev => ({ ...prev, ...newData }));
         setIsCalculed(!isCalculed);
     };
@@ -28,15 +27,17 @@ export default function secondPage() {
             <SplitScreen
                 // On passe les données et la fonction de mise à jour
                 leftComponent={
-                    <LeftPanel 
-                        onAction={handleAction} 
-                        isCalculed={isCalculed} 
-                        data={configData} 
+                    <LeftPanel
+                        onAction={handleAction}
+                        isCalculed={isCalculed}
+                        data={configData}
                         setData={setConfigData}
                     />
                 }
                 // On passe les données au RightPanel pour l'affichage
-                rightComponent={<RightPanel data={configData} />}
+                rightComponent={
+                    isCalculed ? <RightPanel data={configData} /> : null
+                }
                 isCalculed={isCalculed}
             />
         </div>

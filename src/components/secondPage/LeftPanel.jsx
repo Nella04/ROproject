@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
 import DynamicInputList from './DynamicInputList';
 import '../../style/components/secondPage/LeftPanel.scss';
+import { useState } from 'react';
 
 const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
     // Extraction des données provenant du parent
     const { depots, magasins, matrice, offres, demandes } = data;
+
+    const [error, setError] = useState("");
 
     // --- Fonctions de mise à jour via setData ---
     const setDepots = (newDepots) => setData(prev => ({ ...prev, depots: newDepots }));
@@ -55,8 +58,6 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
             }));
         }
     }, [depots.length, magasins.length]);
-    // Note : Attention à ne pas mettre 'depots' ou 'magasins' entiers ici 
-    // si vous mettez à jour 'setData' à l'intérieur, sinon -> boucle infinie.
 
     // --- Synchronisation de la matrice et des champs Offre/Demande ---
     useEffect(() => {
@@ -114,6 +115,42 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
         }));
     };
 
+
+const validerDonnees = () => {
+    // Vérifier nombre minimum
+    if (depots.length < 2) {
+        return "Il faut au moins 2 dépôts.";
+    }
+
+    if (magasins.length < 2) {
+        return "Il faut au moins 2 magasins.";
+    }
+
+    // Somme des offres (disponibilités)
+    const sommeOffres = Object.values(offres)
+        .reduce((sum, val) => sum + Number(val || 0), 0);
+
+    // Somme des demandes (besoins)
+    const sommeDemandes = Object.values(demandes)
+        .reduce((sum, val) => sum + Number(val || 0), 0);
+
+    if((sommeOffres== 0)||(sommeDemandes==0)){
+        return`offres et demande requis`
+    }
+
+    if (sommeOffres !== sommeDemandes) {
+        const diff = Math.abs(sommeOffres - sommeDemandes);
+
+        if (sommeOffres < sommeDemandes) {
+            return `Offres insuffisantes. Il manque ${diff}.`;
+        } else {
+            return `Demandes insuffisantes. Excès de ${diff}.`;
+        }
+    }
+
+    return null; // valide
+};
+
     return (
         <div className="left-panel">
             <h2>Configuration</h2>
@@ -154,6 +191,7 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
                                     <td key={m.id}>
                                         <input
                                             type="number"
+                                            defaultValue={0}
                                             value={matrice[r]?.[c] || ""}
                                             onChange={(e) => handleCellChange(r, c, e.target.value)}
                                         />
@@ -163,6 +201,7 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
                                     <input
                                         className="txt-red font-bold"
                                         type="number"
+                                        defaultValue={0}
                                         value={offres[d.id] || ""}
                                         onChange={(e) => handleOffreChange(d.id, e.target.value)}
                                     />
@@ -176,6 +215,7 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
                                     <input
                                         className="txt-red font-bold"
                                         type="number"
+                                        defaultValue={0}
                                         value={demandes[m.id] || ""}
                                         onChange={(e) => handleDemandeChange(m.id, e.target.value)}
                                     />
@@ -188,13 +228,24 @@ const LeftPanel = ({ onAction, isCalculed, data, setData }) => {
             </div>
 
             <div className="footer-actions">
+                {error && (
+    <div className="error-box">
+        {error}
+    </div>
+)}
                 <button
                     className="bouton-btn bouton-btn-primary"
                     onClick={() => {
-                        console.log("data", data);
-                        onAction(data);
-                    }
-                    }
+                        const erreur = validerDonnees(data);
+
+                        if (erreur) {
+                            setError(erreur); // afficher erreur
+                            return; // STOP → empêche calcul
+                        }
+
+                        setError(""); // reset erreur
+                        onAction(data); // OK → lancer calcul
+                    }}
                 >
                     {isCalculed ? "Modifier" : "Calculer"}
                 </button>
