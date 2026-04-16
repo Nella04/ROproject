@@ -157,14 +157,14 @@ const validerDonnees = () => {
 
             <div className="inputs-container">
                 <DynamicInputList
-                    title="Dépôts"
+                    title="magasin de vente"
                     type="alphabet"
                     items={depots}
                     setItems={setDepots}
                 />
                 <div className="vertical-separator"></div>
                 <DynamicInputList
-                    title="Magasins"
+                    title="Magasin de depot"
                     type="nombre"
                     items={magasins}
                     setItems={setMagasins}

@@ -1,11 +1,11 @@
 export default function transformerDonnees(data) {
     // 1. DEPOTS → A, B, C...
-    const depots = data.magasins.map((_, i) =>
+    const magasins = data.depots.map((_, i) =>
         String.fromCharCode(65 + i) // 65 = 'A'
     );
 
     // 2. MAGASINS → 1, 2, 3...
-    const magasins = data.depots.map((_, i) =>
+    const depots = data.magasins.map((_, i) =>
         (i + 1).toString()
     );
 

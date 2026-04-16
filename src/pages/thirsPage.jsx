@@ -22,28 +22,46 @@ export default function Pageandrana({exempleDonnees}) {
 }
 
     const etapes = finding.solveTransport(exempleDonnees);
+    console.log("resulata de la solution de base",etapes);
 
     const [stepIndex, setStepIndex] = useState(0);
 
     const totalSteps = etapes.length * 3;
 
     useEffect(() => {
+    const handleKey = (e) => {
+        if (e.key === "ArrowRight" || e.key === "Enter") {
+            // Avancer d'une phase
+            setStepIndex(prev =>
+                prev < totalSteps - 1 ? prev + 1 : prev
+            );
+        } 
+        else if (e.key === "ArrowLeft") {
+            // Revenir d'une phase
+            setStepIndex(prev => 
+                prev > 0 ? prev - 1 : prev
+            );
+        }
+        else if (e.key === "ArrowDown") {
+            // Optionnel : Avancer d'une itération complète (3 phases d'un coup)
+            setStepIndex(prev => {
+                const nextIteration = prev + 3;
+                return nextIteration < totalSteps ? nextIteration : prev;
+            });
+        }
+        else if (e.key === "ArrowUp") {
+            // Optionnel : Reculer d'une itération complète (3 phases d'un coup)
+            setStepIndex(prev => {
+                const prevIteration = prev - 3;
+                return prevIteration >= 0 ? prevIteration : 0;
+            });
+        }
+    };
 
-        const handleKey = (e) => {
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+}, [totalSteps]);
 
-            if (e.key === "ArrowRight" || e.key === "Enter") {
-                setStepIndex(prev =>
-                    prev < totalSteps - 1 ? prev + 1 : prev
-                );
-            }
-
-        };
-
-        window.addEventListener("keydown", handleKey);
-
-        return () => window.removeEventListener("keydown", handleKey);
-
-    }, [totalSteps]);
     const currentIteration = Math.floor(stepIndex / 3);
     const phase = stepIndex % 3;
 
