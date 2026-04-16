@@ -3,9 +3,9 @@ import MatriceAffichage from "../components/secondPage/MatriceAffichage";
 //import finding from "../utils/finding";
 import finding from "../service/finding";
 
-export default function Pageandrana() {
+export default function Pageandrana({exempleDonnees}) {
 
-    const exempleDonnees = {
+    /*const exempleDonnees = {
         depots: ["1", "2", "3", "4", "5","6"],
         magasins: ["A", "B", "C", "D"],
         disponibilites: [18, 32, 14, 9],
@@ -16,7 +16,10 @@ export default function Pageandrana() {
             [67, 56, 92, 24, 53,54],
             [71, 43, 91, 67, 40,49],
         ]
-    };
+    };*/
+    if (!exempleDonnees || !exempleDonnees.couts || exempleDonnees.couts.length === 0) {
+    return <div>Aucune donnée à afficher</div>;
+}
 
     const etapes = finding.solveTransport(exempleDonnees);
 
