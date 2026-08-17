@@ -5,9 +5,6 @@ import Image from "../components/rdp/image";
 import Matrice from "../components/rdp/matrice";
 
 function Rdp() {
-    // =========================
-    // DONNÉES COMMUNES
-    // =========================
 
     const donnees = {
         titre: "RDP",
@@ -18,11 +15,7 @@ function Rdp() {
             [70, 80, 90],
         ],
     };
-
-    // =========================
-    // CALCULS
-    // =========================
-
+ 
     const calculerSomme = (matrice) => {
         return matrice.flat().reduce((total, valeur) => total + valeur, 0);
     };

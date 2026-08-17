@@ -1,15 +1,114 @@
+
 .image {
     width: 100%;
     height: 100%;
-
-    padding: 1.5rem;
-
     box-sizing: border-box;
-
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #f3f4f6;
+}
 
-    overflow: auto;
+/* =========================================================
+   CONTENEUR DU RÉSEAU
+========================================================= */
+
+.petri-net {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.petri-net-svg {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: visible;
+}
+
+/* =========================================================
+   ARCS (FLÈCHES)
+========================================================= */
+
+.petri-arc {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 2.5;
+    marker-end: url(#arrow);
+}
+
+/* =========================================================
+   PLACES
+========================================================= */
+
+.petri-place circle {
+    fill: #ffffff;
+    stroke: var(--primary-color);
+    stroke-width: 3;
+}
+
+.petri-place text {
+    fill: var(--primary-color);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: Arial, sans-serif;
+}
+
+/* =========================================================
+   TRANSITIONS
+========================================================= */
+
+.petri-transition rect {
+    fill: var(--primary-color);
+    stroke: var(--primary-color);
+    stroke-width: 2;
+}
+
+.petri-transition text {
+    fill: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: Arial, sans-serif;
+}
+
+/* =========================================================
+   DESCRIPTIONS (TEXTES ASSOCIÉS AUX PLACES / TRANSITIONS)
+========================================================= */
+
+.petri-desc {
+    fill: #334155 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    font-family: Arial, sans-serif;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+    .image {
+        min-height: 30rem;
+        overflow: auto;
+    }
+
+    .petri-net {
+        min-width: 60rem;
+        min-height: 40rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .image {
+        min-height: 25rem;
+    }
+
+    .petri-net {
+        min-width: 55rem;
+    }
 }
