@@ -1,29 +1,56 @@
 :root {
-  --primary-color: #172b4D;
-  --secondary-color: #09c294;
-  --font-color-gray: rgb(226, 225, 225);
-  --warning-color: #FFC107;
-  --danger-color: #DC3545;
-  --danger-color-disabled: #d56873;
-  --success-color: green;
-  --danger-color-disabled: #d56873;
-  --primary-color-darker: #499e89;
-  --font-color: #172b4D;
-  --font-color-gray2: rgb(134, 125, 125);
-  --font-color-light: white;
-  --neutral-color: #F8F9FA;
-  --bs-primary: var(var(--primary-color));
-  --border-color: #e4d8d8;
-  --link-color: #5184cf;
-  --loader-gray-color: #F5F5F5;
-  --primary-color-disabled: #BBA3F1;
-  --bg-task-card: white;
-  --bg-task-column: #f6f8fc;
-  --bg-task-button-hover: #edf2fa;
-  --bg-button-task-hover: #dbe4eb;
-  --primary-color-disabled: #BBA3F1;
-  --primary-color-shadow: rgba(71, 9, 194, 0.3);
-  --dark-color: #030303;
+    /* Thème par défaut : Marron */
+    --primary-color: #622B14;
+    --secondary-color: #995F2F;
+}
+
+/* =========================
+   THÈME MARRON
+   ========================= */
+
+.theme-brown {
+    --primary-color: #622B14;
+    --secondary-color: #995F2F;
+}
+
+/* =========================
+   THÈME BLEU
+   ========================= */
+
+.theme-blue {
+    --primary-color: #005461;
+    --secondary-color: #018790;
+}
+
+/* =========================
+   THÈME ROSE
+   ========================= */
+
+.theme-pink {
+    --primary-color: #896C6C;
+    --secondary-color: #E5BEB5;
+}
+
+/* =========================
+   UTILISATION
+   ========================= */
+
+.text-primary-color {
+    color: var(--primary-color);
+}
+
+.text-secondary-color {
+    color: var(--secondary-color);
+}
+
+.bouton-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.bouton-btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
 }
 
 .text-primary-color {
