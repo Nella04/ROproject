@@ -5,24 +5,12 @@ import finding from "../service/finding";
 import { useMemo } from "react";
 
 export default function Pageandrana({ exempleDonnees, setSolutionBase }) {
-
-    /*const exempleDonnees = {
-        depots: ["1", "2", "3", "4", "5","6"],
-        magasins: ["A", "B", "C", "D"],
-        disponibilites: [18, 32, 14, 9],
-        besoins: [9, 11, 28, 6, 14, 5],
-        couts: [
-            [24, 22, 61, 49, 83,35],
-            [23, 39, 78, 28, 65,42],
-            [67, 56, 92, 24, 53,54],
-            [71, 43, 91, 67, 40,49],
-        ]
-    };*/
     if (!exempleDonnees || !exempleDonnees.couts || exempleDonnees.couts.length === 0) {
         return <div>Aucune donnée à afficher</div>;
     }
 
     const [existespilone, setEsistEpsilone] = useState(false);
+    const [nombreArc, setNombreArc] = useState(0);
 
     const etapes = useMemo(() => {
         return finding.solveTransport(exempleDonnees);
@@ -35,6 +23,7 @@ export default function Pageandrana({ exempleDonnees, setSolutionBase }) {
 
         const m = exempleDonnees.disponibilites.length;
         const n = exempleDonnees.besoins.length;
+        setNombreArc( m + n - 1 );
 
         if (etapes.length !== (m + n - 1)) {
             setEsistEpsilone(true);
@@ -88,6 +77,14 @@ export default function Pageandrana({ exempleDonnees, setSolutionBase }) {
     const phase = stepIndex % 3;
 
     const currentData = etapes[currentIteration] || etapes[0];
+    let activeCell = null;
+
+    if (currentData?.minitabmat?.length > 0) {
+        const currentMini = currentData.minitabmat[currentIteration];
+        if (currentMini) {
+            activeCell = currentMini.position;
+        }
+    }
     let mesHighlights = [];
 
     if (phase === 0) {
@@ -122,12 +119,33 @@ export default function Pageandrana({ exempleDonnees, setSolutionBase }) {
 
     let blockedCells = [];
 
-    // récupérer toutes les cellules bloquées jusqu'à l'étape actuelle
+    // 🔥 récupérer toutes les cellules vertes
+    const allGreenCells = [];
+
+    for (let i = 0; i <= currentIteration; i++) {
+        if (!etapes[i]) continue;
+
+        etapes[i].minitabmat.forEach(item => {
+            allGreenCells.push({
+                row: item.position.row,
+                col: item.position.col
+            });
+        });
+    }
+
+    // 🔲 appliquer blocage
     for (let i = 0; i <= currentIteration; i++) {
 
         if (!etapes[i]) continue;
 
         etapes[i].bloque.forEach(pos => {
+
+            // // ❌ ignorer toutes les cellules vertes
+            // const isGreenCell = allGreenCells.some(
+            //     c => c.row === pos.row && c.col === pos.col
+            // );
+
+            // if (isGreenCell) return;
 
             const alreadyExists = blockedCells.some(
                 c => c.mainPos[0] === pos.row && c.mainPos[1] === pos.col
@@ -144,6 +162,86 @@ export default function Pageandrana({ exempleDonnees, setSolutionBase }) {
         });
 
     }
+
+    const matriceSolution = useMemo(() => {
+
+        const rows = exempleDonnees.couts.length;
+        const cols = exempleDonnees.couts[0].length;
+
+        // matrice vide
+        const matrice = Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, () => "0")
+        );
+
+        if (!currentData?.minitabmat) return matrice;
+
+        currentData.minitabmat.forEach((item, index) => {
+
+            const { row, col } = item.position;
+
+            // Phase 0 → juste coloré (pas de valeur)
+            if (index === currentIteration && phase === 0) {
+                matrice[row][col] = "";
+            }
+
+            // Phase 1 → afficher valeur
+            else if (index === currentIteration && phase >= 1) {
+                matrice[row][col] = item.nombre;
+            }
+
+            // Anciennes étapes → toujours affichées
+            else if (index < currentIteration) {
+                matrice[row][col] = item.nombre;
+            }
+
+        });
+
+        return matrice;
+
+    }, [currentData, currentIteration, phase, exempleDonnees]);
+
+    let solutionHighlights = [];
+
+    // cellule actuelle (vert)
+    if (currentData?.minitabmat?.length > 0) {
+        const currentMini = currentData.minitabmat[currentIteration];
+
+        if (currentMini) {
+            solutionHighlights.push({
+                mainPos: [currentMini.position.row, currentMini.position.col],
+                subPos: [0, 0],
+                color: "#09c294"
+            });
+        }
+    }
+
+    let solutionBlocked = [];
+
+    for (let i = 0; i <= currentIteration; i++) {
+        if (!etapes[i]) continue;
+
+        etapes[i].bloque.forEach(pos => {
+
+            const isGreenCell = allGreenCells.some(
+                c => c.row === pos.row && c.col === pos.col
+            );
+
+            if (isGreenCell) {
+                solutionBlocked.push({
+                mainPos: [pos.row, pos.col],
+                subPos: [0, 0],
+                color: "bleu"
+            });
+            };
+
+            solutionBlocked.push({
+                mainPos: [pos.row, pos.col],
+                subPos: [0, 0],
+                color: "black"
+            });
+        });
+    }
+
     return (
         <>
             <MatriceAffichage
@@ -164,8 +262,8 @@ export default function Pageandrana({ exempleDonnees, setSolutionBase }) {
                 nommagasin={currentData.magasins}
                 dispo={currentData.disponibilites}
                 besoin={currentData.besoins}
-                matriceCoûts={currentData.couts}
-                highlightsCouts={[...mesHighlights, ...blockedCells]}
+                matriceCoûts={matriceSolution} // 👈 ICI LA MAGIE
+                highlightsCouts={[...solutionHighlights, ...solutionBlocked]}
                 highlightDispo={dispoHighlight}
                 highlightBesoin={besoinHighlight}
             />

@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-do
 import FirstPage from './pages/firstPage';
 import SecondPage from './pages/secondPage';
 import Pageandrana from './pages/thirsPage';
+import Rdp from './pages/rdp';
 
 const exempleDonnees = {
         depots: ["1", "2", "3", "4", "5","6"],
@@ -27,6 +28,7 @@ function App() {
           <Route path="/" element={<FirstPage />} />
           <Route path="/second" element={<SecondPage />} />
           <Route path="/a" element={<Pageandrana exempleDonnees={exempleDonnees}/>} />
+          <Route path="/rdp" element={<Rdp />} />
         </Routes>
       </div>
     </Router>
