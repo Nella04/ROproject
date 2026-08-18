@@ -58,16 +58,19 @@ function Rdp() {
         T6: 0
     });
 
+    const [derniereTransition, setDerniereTransition] = useState(null);
+    
     // Reinitialiser
     const handleReset = () => {
         setMarquageActuel(marquageInitial);
         setSequence({ T1: 0, T2: 0, T3: 0, T4: 0, T5: 0, T6: 0 });
+        setDerniereTransition(null);
     };
 
     return (
         <main className="rdp">
             <section className="rdp-message">
-                <Message message="Réseau de Petri - Analyse Matricielle" somme={0} />
+                <Message derniereTransition={derniereTransition} />
             </section>
 
             <section className="rdp-bottom">
@@ -80,6 +83,7 @@ function Rdp() {
                         setSequence={setSequence}
                         pre={pre}
                         post={post}
+                        setDerniereTransition={setDerniereTransition}
                     />
                 </div>
 

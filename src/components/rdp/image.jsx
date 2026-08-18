@@ -6,9 +6,10 @@ function Image({
     sequence,
     setSequence,
     pre,
-    post
+    post,
+    setDerniereTransition
 }) {
-    const placesBinaires = ["P3", "P4", "P5", "P6", "P8", "P9"];
+    const placesBinaires = ["P3", "P4", "P5", "P6", "P8"];
 
     // Vérifier si la transition est franchissable
     const estFranchissable = (transition) => {
@@ -35,7 +36,9 @@ function Image({
 
     // Exécuter la transition
     const franchirTransition = (transition) => {
+        setDerniereTransition(transition);
         if (!estFranchissable(transition)) return;
+        
 
         // Mise à jour du marquage
         setMarquageActuel((prev) => {
