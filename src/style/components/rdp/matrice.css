@@ -1,50 +1,164 @@
-.matrice {
+.matrice-container {
     width: 100%;
     height: 100%;
-
-    padding: 1.5rem;
-
     box-sizing: border-box;
-
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: #ffffff;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    overflow: auto;
+    gap: 1rem;
 }
 
-.matrice h2 {
-    margin: 0 0 1.5rem;
-}
-
-.matrice-table {
+/* En-tête */
+.matrice-header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 0.5rem;
+}
+
+.matrice-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.btn-reset {
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+/* Cartes */
+.table-card, .vector-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.8rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table-card h3, .vector-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+    color: var(--primary-color);
+}
+
+/* Affichage du Vecteur Séquence */
+.vector-display {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 1rem;
+    background: #ffffff;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px dashed var(--secondary-color);
+    overflow-x: auto;
+}
+
+.vector-bracket {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.vector-item {
+    display: inline-flex;
     flex-direction: column;
-
-    max-width: 100%;
-    overflow: auto;
-}
-
-.matrice-row {
-    display: flex;
-}
-
-.matrice-cell {
-    min-width: 4rem;
-    min-height: 3rem;
-
-    padding: 0.75rem;
-
-    display: flex;
-    justify-content: center;
     align-items: center;
-
-    border: 1px solid #ccc;
-
-    box-sizing: border-box;
 }
 
-.matrice p {
-    margin-top: 1.5rem;
+.vector-item small {
+    font-size: 0.65rem;
+    color: #64748b;
+}
+
+/* Grille des marquages M0 & M */
+.markings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.marking-box {
+    background: #f1f5f9;
+    border-radius: 6px;
+    padding: 0.6rem;
+    border-left: 4px solid #94a3b8;
+}
+
+.marking-box.active {
+    border-left-color: var(--primary-color);
+    background: #f0fdf4;
+}
+
+.marking-box h4 {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+.vector-row {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 0.85rem;
+    word-break: break-all;
+}
+
+/* Conteneur de table scrollable */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Style des Tables */
+.rdp-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.rdp-table th, .rdp-table td {
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.rdp-table th {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.rdp-table tbody th {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+}
+
+/* Variances de couleur pour la matrice d'incidence */
+.val-positive {
+    background-color: #dcfce7;
+    color: #166534;
+    font-weight: bold;
+}
+
+.val-negative {
+    background-color: #fee2e2;
+    color: #991b1b;
+    font-weight: bold;
+}
+
+/* Disposition côte-à-côte */
+.sub-matrices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .sub-matrices-grid, .markings-grid {
+        grid-template-columns: 1fr;
+    }
 }

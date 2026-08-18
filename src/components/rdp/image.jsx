@@ -1,84 +1,73 @@
-import { useState } from "react";
 import "../../style/components/rdp/image.css";
 
-function Image({ marquageInitial, pre, post }) {
-    // État local du marquage
-    const [marquage, setMarquage] = useState(marquageInitial);
+function Image({
+    marquageActuel,
+    setMarquageActuel,
+    sequence,
+    setSequence,
+    pre,
+    post
+}) {
+    const placesBinaires = ["P3", "P4", "P5", "P6", "P8", "P9"];
 
-    // Places limitées à 0 ou 1
-    const placesBinaires = ["P3", "P4", "P5", "P6", "P8"];
-
-    // 1. Vérifier si une transition est franchissable
+    // Vérifier si la transition est franchissable
     const estFranchissable = (transition) => {
-        // 1. Condition PRE : Il faut assez de jetons dans les places d'entrée
+        // 1. Condition PRE
         for (const place in pre) {
             const besoin = pre[place][transition];
-            if (besoin > 0 && (marquage[place] || 0) < besoin) {
+            if (besoin > 0 && (marquageActuel[place] || 0) < besoin) {
                 return false;
             }
         }
 
-        // 2. Condition CAPACITÉ (POST) : La place réceptrice binaire ne doit pas être déjà pleine (≥ 1)
+        // 2. Condition POST (Places binaires limitées à 1)
         for (const place in post) {
             const gain = post[place][transition];
-
             if (gain > 0 && placesBinaires.includes(place)) {
-                // Jetons restants après avoir consommé (si la place est à la fois en entrée et sortie)
-                const jetonsConsommes = pre[place]?.[transition] || 0;
-                const jetonsFuturs = (marquage[place] || 0) - jetonsConsommes + gain;
-
-                // Si le nombre futur de jetons dépasse 1, la transition est bloquée
-                if (jetonsFuturs > 1) {
-                    return false;
-                }
+                const consomme = pre[place]?.[transition] || 0;
+                const futur = (marquageActuel[place] || 0) - consomme + gain;
+                if (futur > 1) return false;
             }
         }
 
         return true;
     };
 
-    // 2. Exécuter / Tirer une transition
+    // Exécuter la transition
     const franchirTransition = (transition) => {
         if (!estFranchissable(transition)) return;
 
-        setMarquage((prev) => {
-            const nouveauMarquage = { ...prev };
-
-            // Consommer les jetons des places précédentes (PRE)
+        // Mise à jour du marquage
+        setMarquageActuel((prev) => {
+            const nouveau = { ...prev };
             for (const place in pre) {
-                nouveauMarquage[place] -= pre[place][transition];
+                nouveau[place] -= pre[place][transition];
             }
-
-            // Produire les jetons dans les places suivantes (POST)
             for (const place in post) {
-                nouveauMarquage[place] += post[place][transition];
-                // S'il s'agit d'une place binaire, on cap à 1 max
-                if (placesBinaires.includes(place) && nouveauMarquage[place] > 1) {
-                    nouveauMarquage[place] = 1;
-                }
+                nouveau[place] += post[place][transition];
             }
-
-            return nouveauMarquage;
+            return nouveau;
         });
-    };
 
-    // 3. Modifier manuellement la valeur d'une place (Placeholder / Input)
-    const handleJetonsChange = (place, val) => {
-        let n = parseInt(val, 10);
-        if (isNaN(n) || n < 0) n = 0;
-
-        // Restriction 0 ou 1 si applicable
-        if (placesBinaires.includes(place) && n > 1) {
-            n = 1;
-        }
-
-        setMarquage((prev) => ({
-            ...prev,
-            [place]: n,
+        // Incrémentation de la séquence de transition
+        setSequence((prevSeq) => ({
+            ...prevSeq,
+            [transition]: prevSeq[transition] + 1
         }));
     };
 
-    // Coordonnées des places
+    // Modification manuelle de la valeur d'une place
+    const handleJetonsChange = (place, val) => {
+        let n = parseInt(val, 10);
+        if (isNaN(n) || n < 0) n = 0;
+        if (placesBinaires.includes(place) && n > 1) n = 1;
+
+        setMarquageActuel((prev) => ({
+            ...prev,
+            [place]: n
+        }));
+    };
+
     const coordsPlaces = {
         P1: { x: 120, y: 160 },
         P2: { x: 420, y: 60 },
@@ -91,7 +80,6 @@ function Image({ marquageInitial, pre, post }) {
         P9: { x: 1100, y: 720 },
     };
 
-    // Coordonnées des transitions
     const coordsTransitions = {
         T1: { x: 230, y: 137.5, text: "Un client s’installe à la caisse", posText: { x: 280, y: 122, anchor: "middle" } },
         T2: { x: 650, y: 137.5, text: "Payer et encaisser", posText: { x: 700, y: 122, anchor: "middle" } },
@@ -104,31 +92,14 @@ function Image({ marquageInitial, pre, post }) {
     return (
         <div className="image">
             <div className="petri-net">
-                <svg
-                    className="petri-net-svg"
-                    viewBox="0 0 1220 820"
-                    preserveAspectRatio="xMidYMid meet"
-                >
+                <svg className="petri-net-svg" viewBox="0 0 1220 820" preserveAspectRatio="xMidYMid meet">
                     <defs>
-                        <marker
-                            id="arrow"
-                            markerWidth="10"
-                            markerHeight="10"
-                            refX="8"
-                            refY="3"
-                            orient="auto"
-                            markerUnits="strokeWidth"
-                        >
-                            <path
-                                d="M0,0 L0,6 L9,3 z"
-                                fill="var(--primary-color, #622B14)"
-                            />
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="var(--primary-color)" />
                         </marker>
                     </defs>
 
-                    {/* =================================================
-                        ARCS
-                    ================================================= */}
+                    {/* Arcs */}
                     <line className="petri-arc" x1="148" y1="160" x2="228" y2="160" />
                     <line className="petri-arc" x1="395" y1="77" x2="325" y2="135" />
                     <line className="petri-arc" x1="330" y1="160" x2="470" y2="160" />
@@ -148,36 +119,25 @@ function Image({ marquageInitial, pre, post }) {
                     <line className="petri-arc" x1="950" y1="580" x2="1048" y2="580" />
                     <line className="petri-arc" x1="1100" y1="602" x2="1100" y2="690" />
 
-                    {/* =================================================
-                        PLACES (AVEC INPUT PLACEHOLDER JETON)
-                    ================================================= */}
+                    {/* Places */}
                     {Object.entries(coordsPlaces).map(([key, { x, y }]) => (
                         <g key={key} className="petri-place">
                             <circle cx={x} cy={y} r="28" />
-                            <text x={x} y={y - 8} textAnchor="middle">
-                                {key}
-                            </text>
-
-                            {/* Input modifiable pour le nombre de jetons */}
-                            <foreignObject
-                                x={x - 20}
-                                y={y + 1}
-                                width="40"
-                                height="22"
-                            >
+                            <text x={x} y={y - 8} textAnchor="middle">{key}</text>
+                            <foreignObject x={x - 20} y={y + 1} width="40" height="22">
                                 <input
                                     type="number"
                                     className="jeton-input"
                                     min="0"
                                     max={placesBinaires.includes(key) ? "1" : undefined}
-                                    value={marquage[key] ?? 0}
+                                    value={marquageActuel[key] ?? 0}
                                     onChange={(e) => handleJetonsChange(key, e.target.value)}
                                 />
                             </foreignObject>
                         </g>
                     ))}
 
-                    {/* Descriptions statiques des Places */}
+                    {/* Descriptions des places */}
                     <text x="120" y="110" className="petri-desc" textAnchor="middle">Nombre de client en attente 0 à n</text>
                     <text x="420" y="20" className="petri-desc" textAnchor="middle">Nombre de caisse disponible 0 à n</text>
                     <text x="460" y="115" className="petri-desc" textAnchor="start">Scanner produit</text>
@@ -188,9 +148,7 @@ function Image({ marquageInitial, pre, post }) {
                     <text x="920" y="635" className="petri-desc" textAnchor="middle">Machine scanner disponible</text>
                     <text x="1100" y="775" className="petri-desc" textAnchor="middle">Client dehors</text>
 
-                    {/* =================================================
-                        TRANSITIONS (BOUTONS EXÉCUTABLES / ACTIONNABLES)
-                    ================================================= */}
+                    {/* Transitions */}
                     {Object.entries(coordsTransitions).map(([tKey, { x, y, text, posText }]) => {
                         const active = estFranchissable(tKey);
                         return (
@@ -205,14 +163,7 @@ function Image({ marquageInitial, pre, post }) {
                                         {tKey}
                                     </button>
                                 </foreignObject>
-                                <text
-                                    x={posText.x}
-                                    y={posText.y}
-                                    className="petri-desc"
-                                    textAnchor={posText.anchor}
-                                >
-                                    {text}
-                                </text>
+                                <text x={posText.x} y={posText.y} className="petri-desc" textAnchor={posText.anchor}>{text}</text>
                             </g>
                         );
                     })}
