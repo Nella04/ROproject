@@ -24,10 +24,6 @@ export default function FirstPage() {
     return (
         <main className="first-page">
 
-            {/* =========================
-                HERO
-            ========================= */}
-
             <section className="hero">
 
                 <div className="hero-content">
@@ -43,8 +39,8 @@ export default function FirstPage() {
                     </h1>
 
                     <p className="hero-description">
-                        Une plateforme interactive dédiée à la compréhension,
-                        à la visualisation et à la résolution de problèmes
+                        la compréhension,
+                        la visualisation et la résolution de problèmes
                         liés à la recherche opérationnelle et aux réseaux de Petri.
                     </p>
 
@@ -105,10 +101,6 @@ export default function FirstPage() {
             </section>
 
 
-            {/* =========================
-                DEFINITIONS
-            ========================= */}
-
             <section className="definitions">
 
                 <div className="section-heading">
@@ -118,8 +110,7 @@ export default function FirstPage() {
                     </span>
 
                     <h2>
-                        Deux domaines,
-                        <span> une approche interactive.</span>
+                        Projet Recherche Opérationnelle
                     </h2>
 
                     <p>
@@ -142,26 +133,17 @@ export default function FirstPage() {
                         </div>
 
                         <div className="card-icon">
-                            ∑
+                            3007
                         </div>
 
                         <h3>
-                            Recherche Opérationnelle
+                            ROHAMA NAHITANTSOA ORNELLA
                         </h3>
 
                         <p>
-                            La recherche opérationnelle est une discipline
-                            qui utilise des méthodes mathématiques,
-                            statistiques et algorithmiques afin d'aider
-                            à prendre les meilleures décisions face à
-                            des problèmes complexes.
+
                         </p>
 
-                        <div className="card-tags">
-                            <span>Optimisation</span>
-                            <span>Algorithmes</span>
-                            <span>Décision</span>
-                        </div>
 
                     </article>
 
@@ -175,25 +157,10 @@ export default function FirstPage() {
                         </div>
 
                         <div className="card-icon petri-icon">
-                            ○
+                            2910
                         </div>
 
-                        <h3>
-                            Réseaux de Petri
-                        </h3>
-
-                        <p>
-                            Les réseaux de Petri sont un outil mathématique
-                            et graphique permettant de modéliser des systèmes
-                            concurrents, asynchrones et distribués à travers
-                            des places, des transitions et des jetons.
-                        </p>
-
-                        <div className="card-tags">
-                            <span>Modélisation</span>
-                            <span>Simulation</span>
-                            <span>Concurrence</span>
-                        </div>
+                        
 
                     </article>
 
@@ -232,9 +199,8 @@ export default function FirstPage() {
                     {/* Marron */}
 
                     <label
-                        className={`theme-option ${
-                            theme === "brown" ? "active" : ""
-                        }`}
+                        className={`theme-option ${theme === "brown" ? "active" : ""
+                            }`}
                     >
 
                         <input
@@ -263,9 +229,8 @@ export default function FirstPage() {
                     {/* Bleu */}
 
                     <label
-                        className={`theme-option ${
-                            theme === "blue" ? "active" : ""
-                        }`}
+                        className={`theme-option ${theme === "blue" ? "active" : ""
+                            }`}
                     >
 
                         <input
@@ -294,9 +259,8 @@ export default function FirstPage() {
                     {/* Rose */}
 
                     <label
-                        className={`theme-option ${
-                            theme === "pink" ? "active" : ""
-                        }`}
+                        className={`theme-option ${theme === "pink" ? "active" : ""
+                            }`}
                     >
 
                         <input

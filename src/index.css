@@ -80,6 +80,6 @@
   }
   &:disabled {
     opacity: 0.7;
-    background-color: var(--primary-color-disabled);
+    background-color: var(--secondary-color);
   }
 }

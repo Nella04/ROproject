@@ -1,6 +1,106 @@
+import { useState } from "react";
 import "../../style/components/rdp/image.css";
 
-function Image({ matrice, somme }) {
+function Image({ marquageInitial, pre, post }) {
+    // État local du marquage
+    const [marquage, setMarquage] = useState(marquageInitial);
+
+    // Places limitées à 0 ou 1
+    const placesBinaires = ["P3", "P4", "P5", "P6", "P8"];
+
+    // 1. Vérifier si une transition est franchissable
+    const estFranchissable = (transition) => {
+        // 1. Condition PRE : Il faut assez de jetons dans les places d'entrée
+        for (const place in pre) {
+            const besoin = pre[place][transition];
+            if (besoin > 0 && (marquage[place] || 0) < besoin) {
+                return false;
+            }
+        }
+
+        // 2. Condition CAPACITÉ (POST) : La place réceptrice binaire ne doit pas être déjà pleine (≥ 1)
+        for (const place in post) {
+            const gain = post[place][transition];
+
+            if (gain > 0 && placesBinaires.includes(place)) {
+                // Jetons restants après avoir consommé (si la place est à la fois en entrée et sortie)
+                const jetonsConsommes = pre[place]?.[transition] || 0;
+                const jetonsFuturs = (marquage[place] || 0) - jetonsConsommes + gain;
+
+                // Si le nombre futur de jetons dépasse 1, la transition est bloquée
+                if (jetonsFuturs > 1) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+    // 2. Exécuter / Tirer une transition
+    const franchirTransition = (transition) => {
+        if (!estFranchissable(transition)) return;
+
+        setMarquage((prev) => {
+            const nouveauMarquage = { ...prev };
+
+            // Consommer les jetons des places précédentes (PRE)
+            for (const place in pre) {
+                nouveauMarquage[place] -= pre[place][transition];
+            }
+
+            // Produire les jetons dans les places suivantes (POST)
+            for (const place in post) {
+                nouveauMarquage[place] += post[place][transition];
+                // S'il s'agit d'une place binaire, on cap à 1 max
+                if (placesBinaires.includes(place) && nouveauMarquage[place] > 1) {
+                    nouveauMarquage[place] = 1;
+                }
+            }
+
+            return nouveauMarquage;
+        });
+    };
+
+    // 3. Modifier manuellement la valeur d'une place (Placeholder / Input)
+    const handleJetonsChange = (place, val) => {
+        let n = parseInt(val, 10);
+        if (isNaN(n) || n < 0) n = 0;
+
+        // Restriction 0 ou 1 si applicable
+        if (placesBinaires.includes(place) && n > 1) {
+            n = 1;
+        }
+
+        setMarquage((prev) => ({
+            ...prev,
+            [place]: n,
+        }));
+    };
+
+    // Coordonnées des places
+    const coordsPlaces = {
+        P1: { x: 120, y: 160 },
+        P2: { x: 420, y: 60 },
+        P3: { x: 500, y: 160 },
+        P4: { x: 500, y: 360 },
+        P5: { x: 780, y: 360 },
+        P6: { x: 500, y: 580 },
+        P7: { x: 880, y: 240 },
+        P8: { x: 920, y: 580 },
+        P9: { x: 1100, y: 720 },
+    };
+
+    // Coordonnées des transitions
+    const coordsTransitions = {
+        T1: { x: 230, y: 137.5, text: "Un client s’installe à la caisse", posText: { x: 280, y: 122, anchor: "middle" } },
+        T2: { x: 650, y: 137.5, text: "Payer et encaisser", posText: { x: 700, y: 122, anchor: "middle" } },
+        T3: { x: 450, y: 237.5, text: "Bloquer caisse", posText: { x: 565, y: 265, anchor: "start" } },
+        T4: { x: 450, y: 447.5, text: "Commencer intervention", posText: { x: 430, y: 475, anchor: "end" } },
+        T5: { x: 650, y: 557.5, text: "Valider et payer client", posText: { x: 700, y: 630, anchor: "middle" } },
+        T6: { x: 1050, y: 557.5, text: "Sortir", posText: { x: 1100, y: 540, anchor: "middle" } },
+    };
+
     return (
         <div className="image">
             <div className="petri-net">
@@ -9,9 +109,6 @@ function Image({ matrice, somme }) {
                     viewBox="0 0 1220 820"
                     preserveAspectRatio="xMidYMid meet"
                 >
-                    {/* =================================================
-                        DEFINITION DE LA FLECHE
-                    ================================================= */}
                     <defs>
                         <marker
                             id="arrow"
@@ -24,223 +121,101 @@ function Image({ matrice, somme }) {
                         >
                             <path
                                 d="M0,0 L0,6 L9,3 z"
-                                fill="var(--primary-color, #1e293b)"
+                                fill="var(--primary-color, #622B14)"
                             />
                         </marker>
                     </defs>
 
                     {/* =================================================
-                        ARCS (FLÈCHES)
+                        ARCS
                     ================================================= */}
-
-                    {/* P1 → T1 */}
                     <line className="petri-arc" x1="148" y1="160" x2="228" y2="160" />
-
-                    {/* P2 → T1 */}
                     <line className="petri-arc" x1="395" y1="77" x2="325" y2="135" />
-
-                    {/* T1 → P3 */}
                     <line className="petri-arc" x1="330" y1="160" x2="470" y2="160" />
-
-                    {/* P3 → T2 */}
                     <line className="petri-arc" x1="530" y1="160" x2="648" y2="160" />
-
-                    {/* T2 → P2 (Boucle de retour) */}
-                    <path
-                        className="petri-arc"
-                        d="M 680 137 C 680 50, 530 40, 450 55"
-                    />
-
-                    {/* T2 → P7 */}
+                    <path className="petri-arc" d="M 680 137 C 680 50, 530 40, 450 55" />
                     <line className="petri-arc" x1="750" y1="160" x2="852" y2="225" />
-
-                    {/* P3 → T3 */}
                     <line className="petri-arc" x1="500" y1="190" x2="500" y2="235" />
-
-                    {/* T3 → P4 */}
                     <line className="petri-arc" x1="500" y1="282" x2="500" y2="330" />
-
-                    {/* P4 → T4 */}
                     <line className="petri-arc" x1="500" y1="390" x2="500" y2="445" />
-
-                    {/* P5 → T4 */}
                     <line className="petri-arc" x1="755" y1="370" x2="552" y2="465" />
-
-                    {/* T4 → P6 */}
                     <line className="petri-arc" x1="500" y1="492" x2="500" y2="550" />
-
-                    {/* P6 → T5 */}
                     <line className="petri-arc" x1="530" y1="580" x2="648" y2="580" />
-
-                    {/* T5 → P5 */}
-                    <path
-                        className="petri-arc"
-                        d="M 720 557 C 750 480, 770 430, 775 390"
-                    />
-
-                    {/* T5 → P7 */}
-                    <path
-                        className="petri-arc"
-                        d="M 735 557 C 820 480, 860 380, 875 270"
-                    />
-
-                    {/* T5 → P8 */}
+                    <path className="petri-arc" d="M 720 557 C 750 480, 770 430, 775 390" />
+                    <path className="petri-arc" d="M 735 557 C 820 480, 860 380, 875 270" />
                     <line className="petri-arc" x1="750" y1="580" x2="890" y2="580" />
-
-                    {/* P7 → T6 */}
                     <line className="petri-arc" x1="902" y1="258" x2="1080" y2="555" />
-
-                    {/* P8 → T6 */}
                     <line className="petri-arc" x1="950" y1="580" x2="1048" y2="580" />
-
-                    {/* T6 → P9 */}
                     <line className="petri-arc" x1="1100" y1="602" x2="1100" y2="690" />
 
+                    {/* =================================================
+                        PLACES (AVEC INPUT PLACEHOLDER JETON)
+                    ================================================= */}
+                    {Object.entries(coordsPlaces).map(([key, { x, y }]) => (
+                        <g key={key} className="petri-place">
+                            <circle cx={x} cy={y} r="28" />
+                            <text x={x} y={y - 8} textAnchor="middle">
+                                {key}
+                            </text>
+
+                            {/* Input modifiable pour le nombre de jetons */}
+                            <foreignObject
+                                x={x - 20}
+                                y={y + 1}
+                                width="40"
+                                height="22"
+                            >
+                                <input
+                                    type="number"
+                                    className="jeton-input"
+                                    min="0"
+                                    max={placesBinaires.includes(key) ? "1" : undefined}
+                                    value={marquage[key] ?? 0}
+                                    onChange={(e) => handleJetonsChange(key, e.target.value)}
+                                />
+                            </foreignObject>
+                        </g>
+                    ))}
+
+                    {/* Descriptions statiques des Places */}
+                    <text x="120" y="110" className="petri-desc" textAnchor="middle">Nombre de client en attente 0 à n</text>
+                    <text x="420" y="20" className="petri-desc" textAnchor="middle">Nombre de caisse disponible 0 à n</text>
+                    <text x="460" y="115" className="petri-desc" textAnchor="start">Scanner produit</text>
+                    <text x="450" y="365" className="petri-desc" textAnchor="end">En attente agent</text>
+                    <text x="820" y="365" className="petri-desc" textAnchor="start">Agent disponible</text>
+                    <text x="450" y="585" className="petri-desc" textAnchor="end">Intervention</text>
+                    <text x="880" y="195" className="petri-desc" textAnchor="middle">Client en attente portique 0 à n</text>
+                    <text x="920" y="635" className="petri-desc" textAnchor="middle">Machine scanner disponible</text>
+                    <text x="1100" y="775" className="petri-desc" textAnchor="middle">Client dehors</text>
 
                     {/* =================================================
-                        PLACES (CERCLES + ETIQUETTES + DESCRIPTIONS)
+                        TRANSITIONS (BOUTONS EXÉCUTABLES / ACTIONNABLES)
                     ================================================= */}
-
-                    {/* P1 */}
-                    <g className="petri-place">
-                        <circle cx="120" cy="160" r="28" />
-                        <text x="120" y="166" textAnchor="middle">P1</text>
-                        <text x="120" y="110" className="petri-desc" textAnchor="middle">
-                            Nombre de client en attente 0 à n
-                        </text>
-                    </g>
-
-                    {/* P2 */}
-                    <g className="petri-place">
-                        <circle cx="420" cy="60" r="28" />
-                        <text x="420" y="66" textAnchor="middle">P2</text>
-                        <text x="420" y="20" className="petri-desc" textAnchor="middle">
-                            Nombre de caisse disponible 0 à n
-                        </text>
-                    </g>
-
-                    {/* P3 */}
-                    <g className="petri-place">
-                        <circle cx="500" cy="160" r="28" />
-                        <text x="500" y="166" textAnchor="middle">P3</text>
-                        <text x="460" y="130" className="petri-desc" textAnchor="start">
-                            Scanner produit
-                        </text>
-                    </g>
-
-                    {/* P4 */}
-                    <g className="petri-place">
-                        <circle cx="500" cy="360" r="28" />
-                        <text x="500" y="366" textAnchor="middle">P4</text>
-                        <text x="450" y="365" className="petri-desc" textAnchor="end">
-                            En attente agent
-                        </text>
-                    </g>
-
-                    {/* P5 */}
-                    <g className="petri-place">
-                        <circle cx="780" cy="360" r="28" />
-                        <text x="780" y="366" textAnchor="middle">P5</text>
-                        <text x="820" y="365" className="petri-desc" textAnchor="start">
-                            Agent disponible
-                        </text>
-                    </g>
-
-                    {/* P6 */}
-                    <g className="petri-place">
-                        <circle cx="500" cy="580" r="28" />
-                        <text x="500" y="586" textAnchor="middle">P6</text>
-                        <text x="450" y="585" className="petri-desc" textAnchor="end">
-                            Intervention
-                        </text>
-                    </g>
-
-                    {/* P7 */}
-                    <g className="petri-place">
-                        <circle cx="880" cy="240" r="28" />
-                        <text x="880" y="246" textAnchor="middle">P7</text>
-                        <text x="880" y="195" className="petri-desc" textAnchor="middle">
-                            Client en attente portique 0 à n
-                        </text>
-                    </g>
-
-                    {/* P8 */}
-                    <g className="petri-place">
-                        <circle cx="920" cy="580" r="28" />
-                        <text x="920" y="586" textAnchor="middle">P8</text>
-                        <text x="920" y="635" className="petri-desc" textAnchor="middle">
-                            Machine scanner disponible
-                        </text>
-                    </g>
-
-                    {/* P9 */}
-                    <g className="petri-place">
-                        <circle cx="1100" cy="720" r="28" />
-                        <text x="1100" y="726" textAnchor="middle">P9</text>
-                        <text x="1100" y="775" className="petri-desc" textAnchor="middle">
-                            Client dehors
-                        </text>
-                    </g>
-
-
-                    {/* =================================================
-                        TRANSITIONS (RECTANGLES + ETIQUETTES + DESCRIPTIONS)
-                    ================================================= */}
-
-                    {/* T1 */}
-                    <g className="petri-transition">
-                        <rect x="230" y="137.5" width="100" height="45" rx="6" />
-                        <text x="280" y="165" textAnchor="middle">T1</text>
-                        <text x="280" y="122" className="petri-desc" textAnchor="middle">
-                            Un client s’installe à la caisse
-                        </text>
-                    </g>
-
-                    {/* T2 */}
-                    <g className="petri-transition">
-                        <rect x="650" y="137.5" width="100" height="45" rx="6" />
-                        <text x="700" y="165" textAnchor="middle">T2</text>
-                        <text x="700" y="122" className="petri-desc" textAnchor="middle">
-                            Payer et encaisser
-                        </text>
-                    </g>
-
-                    {/* T3 */}
-                    <g className="petri-transition">
-                        <rect x="450" y="237.5" width="100" height="45" rx="6" />
-                        <text x="500" y="265" textAnchor="middle">T3</text>
-                        <text x="565" y="265" className="petri-desc" textAnchor="start">
-                            Bloquer caisse
-                        </text>
-                    </g>
-
-                    {/* T4 */}
-                    <g className="petri-transition">
-                        <rect x="450" y="447.5" width="100" height="45" rx="6" />
-                        <text x="500" y="475" textAnchor="middle">T4</text>
-                        <text x="430" y="475" className="petri-desc" textAnchor="end">
-                            Commencer intervention
-                        </text>
-                    </g>
-
-                    {/* T5 */}
-                    <g className="petri-transition">
-                        <rect x="650" y="557.5" width="100" height="45" rx="6" />
-                        <text x="700" y="585" textAnchor="middle">T5</text>
-                        <text x="700" y="630" className="petri-desc" textAnchor="middle">
-                            Valider et payer client
-                        </text>
-                    </g>
-
-                    {/* T6 */}
-                    <g className="petri-transition">
-                        <rect x="1050" y="557.5" width="100" height="45" rx="6" />
-                        <text x="1100" y="585" textAnchor="middle">T6</text>
-                        <text x="1100" y="540" className="petri-desc" textAnchor="middle">
-                            Sortir
-                        </text>
-                    </g>
-
+                    {Object.entries(coordsTransitions).map(([tKey, { x, y, text, posText }]) => {
+                        const active = estFranchissable(tKey);
+                        return (
+                            <g key={tKey} className="petri-transition">
+                                <foreignObject x={x} y={y} width="100" height="45">
+                                    <button
+                                        type="button"
+                                        className="bouton-btn bouton-btn-primary transition-btn"
+                                        disabled={!active}
+                                        onClick={() => franchirTransition(tKey)}
+                                    >
+                                        {tKey}
+                                    </button>
+                                </foreignObject>
+                                <text
+                                    x={posText.x}
+                                    y={posText.y}
+                                    className="petri-desc"
+                                    textAnchor={posText.anchor}
+                                >
+                                    {text}
+                                </text>
+                            </g>
+                        );
+                    })}
                 </svg>
             </div>
         </div>
